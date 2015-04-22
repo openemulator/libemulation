@@ -41,6 +41,17 @@ If you can't compile because of this error: "'zipconf.h' file not found", try:
 
 	http://brew.sh/
 
+An unofficial formula is available at https://github.com/lifepillar/homebrew-appleii.
+Just tap the repository:
+
+    brew tap lifepillar/appleii
+
+After that, you may install OpenEmulator with just one command:
+
+    brew install openemulator
+
+The following instructions are needed only if you don't want to use the above formula.
+
 #### Install dependencies
 
 **Note:** if I missed any, follow my procedure: try to build, see which header file or library is
