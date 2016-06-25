@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE EDL PUBLIC "-//OPENEMULATOR//DTD EDL 1.0//EN" "http://www.openemulator.org/DTD/edl-1.0.dtd">
+<edl version="1.0" creator="OpenEmulator" framework="787" label="Don't Ask S.A.M." image="images/Don't Ask/S.A.M. Front.png" description="A general-purpose Digital-to-Analog converter connected to an audio amplifier, distributed with Don't Ask Software's Software Automatic Mouth.">
+    
+    <device id="dontAskSAM" label="Don't Ask S.A.M. DAC" image="images/Don't Ask/S.A.M. Front.png">
+      <setting ref="dontAskSAM.io" name="volume" label="Volume" type="slider" options="0,1"/>
+    </device>
+    <component id="dontAskSAM.io" class="SAMDACCard">
+        <property name="floatingBus" ref=""/>
+        <property name="audioCodec" ref=""/>
+        <property name="volume" value="1.0"/>
+    </component>
+    <connector id="dontAskSAM.connector" type="Apple II Slot">
+        <inlet ref="dontAskSAM.io" property="floatingBus" outletRef="floatingBus"/>
+        <inlet ref="dontAskSAM.io" property="audioCodec" outletRef="audioCodec"/>
+    </connector>
+</edl>
