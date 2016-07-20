@@ -74,6 +74,8 @@
 
 #include "RDCFFA.h"
 
+#include "SAMDACCard.h"
+
 #include "VidexVideoterm.h"
 
 #include "W65C02S.h"
@@ -145,6 +147,8 @@ OEComponent *OEComponentFactory::construct(const string& className)
     matchComponent(MC6821);
     
     matchComponent(MM58167);
+    
+    matchComponent(SAMDACCard);
     
     matchComponent(RDCFFA);
     
