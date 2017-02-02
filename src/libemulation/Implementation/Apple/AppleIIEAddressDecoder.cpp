@@ -2,7 +2,7 @@
 /**
  * libemulation
  * Apple II Address Decoder
- * (C) 2012 by Marc S. Ressl (mressl@umich.edu)
+ * (C) 2017 by Zellyn Hunter (zellyn@gmail.com)
  * Released under the GPL
  *
  * Controls an Apple II Address Decoder

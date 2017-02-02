@@ -116,7 +116,9 @@
         <property name="blockSize" value="0x1"/>
         <property name="floatingBus" ref="appleIIe.floatingBus"/>
         <property name="refKeyboard" ref="appleIIe.keyboard"/>
-        <property name="mapKeyboard" value="0x00-0x1f"/>
+        <property name="mapKeyboard" value="r:0x00-0x10,w:0x10-0x1f"/>
+        <property name="refMMU" ref="appleIIe.mmu"/>
+        <property name="mapMMU" value="w:0x00-0x0f,r:0x10-0x1f"/>
         <property name="refSpeaker" ref="appleIIe.audioOut"/>
         <property name="mapSpeaker" value="0x20-0x3f"/>
         <property name="refGamePort" ref="appleIIe.gamePort"/>
@@ -141,6 +143,11 @@
         <property name="mapSlot6" value="0xe0-0xef"/>
         <property name="refSlot7" ref=""/>
         <property name="mapSlot7" value="0xf0-0xff"/>
+    </component>
+    <component id="appleIIe.mmu" class="AppleIIEMMU">
+        <property name="controlBus" ref="appleIIe.controlBus"/>
+        <property name="floatingBus" ref="appleIIe.floatingBus"/>
+        <property name="video" ref="appleIIe.video"/>
     </component>
     <component id="appleIIe.keyboard" class="AppleIIKeyboard">
         <property name="type" value="Shift-Key Mod"/>

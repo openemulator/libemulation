@@ -45,6 +45,7 @@
 #include "AppleIIAudioOut.h"
 #include "AppleIIDisableC800.h"
 #include "AppleIIEAddressDecoder.h"
+#include "AppleIIEMMU.h"
 #include "AppleIIFloatingBus.h"
 #include "AppleIIGamePort.h"
 #include "AppleIIKeyboard.h"
@@ -122,6 +123,7 @@ OEComponent *OEComponentFactory::construct(const string& className)
     matchComponent(AppleIIAudioOut);
     matchComponent(AppleIIDisableC800);
     matchComponent(AppleIIEAddressDecoder);
+    matchComponent(AppleIIEMMU);
     matchComponent(AppleIIFloatingBus);
     matchComponent(AppleIIGamePort);
     matchComponent(AppleIIKeyboard);
