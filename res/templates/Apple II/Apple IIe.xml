@@ -102,7 +102,14 @@
         <property name="refROME0FF" ref="appleIIe.romE0FF"/>
         <property name="mapROME0FF" value="0xe000-0xffff"/>
     </component>
-    <component id="appleIIe.ram" class="VRAM">
+    <component id="appleIIe.ram" class="AddressDecoder">
+        <property name="size" value="0x10000"/>
+        <property name="blockSize" value="0x100"/>
+        <property name="floatingBus" ref="appleIIe.floatingBus"/>
+        <property name="refMainRam" ref="appleIIe.mainRam"/>
+        <property name="mapMainRam" value="0x0000-0xffff"/>
+    </component>
+    <component id="appleIIe.mainRam" class="VRAM">
         <property name="size" value="0x10000"/>
         <property name="memoryImage" data="${packagePath}/${id}.bin"/>
         <property name="controlBus" ref="appleIIe.controlBus"/>
@@ -197,13 +204,13 @@
         <property name="hires" value="0"/>
         <property name="controlBus" ref="appleIIe.controlBus"/>
         <property name="monitor" ref="appleMonitorII.monitor"/>
-        <property name="vram0000" ref="appleIIe.ram"/>
+        <property name="vram0000" ref="appleIIe.mainRam"/>
         <property name="vram0000Offset" value="0x0000"/>
-        <property name="vram1000" ref="appleIIe.ram"/>
+        <property name="vram1000" ref="appleIIe.mainRam"/>
         <property name="vram1000Offset" value="0x1000"/>
-        <property name="vram2000" ref="appleIIe.ram"/>
+        <property name="vram2000" ref="appleIIe.mainRam"/>
         <property name="vram2000Offset" value="0x2000"/>
-        <property name="vram4000" ref="appleIIe.ram"/>
+        <property name="vram4000" ref="appleIIe.mainRam"/>
         <property name="vram4000Offset" value="0x4000"/>
         <property name="fontStandard" data="${resourcePath}/roms/Apple/341-0036.bin"/>
         <property name="fontVidex" data="${resourcePath}/roms/Videx/Videx Lower Case Chip ROM.bin"/>
