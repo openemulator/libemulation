@@ -152,9 +152,16 @@
         <property name="mapSlot7" value="0xf0-0xff"/>
     </component>
     <component id="appleIIe.mmu" class="AppleIIEMMU">
+        <property name="bankSwitcher" ref="appleIIe.bankSwitcher"/>
         <property name="controlBus" ref="appleIIe.controlBus"/>
         <property name="floatingBus" ref="appleIIe.floatingBus"/>
+        <property name="memoryBus" ref="appleIIe.memoryBus"/>
         <property name="video" ref="appleIIe.video"/>
+    </component>
+    <component id="appleIIe.bankSwitcher" class="AddressOffset">
+        <property name="memory" ref="appleIIe.ram"/>
+        <property name="size" value="0x4000"/>
+        <property name="blockSize" value="0x1000"/>
     </component>
     <component id="appleIIe.keyboard" class="AppleIIKeyboard">
         <property name="type" value="Shift-Key Mod"/>
@@ -193,7 +200,7 @@
         <property name="gamePort" ref="appleHandControllers.io"/>
     </component>
     <component id="appleIIe.video" class="AppleIIVideo">
-        <property name="model" value="II"/>
+        <property name="model" value="IIe"/>
         <property name="revision" value="1"/>
         <property name="tvSystem" value="NTSC"/>
         <property name="characterSet" value="Standard"/>

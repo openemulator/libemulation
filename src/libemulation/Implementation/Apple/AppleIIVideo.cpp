@@ -207,9 +207,16 @@ bool AppleIIVideo::getValue(string name, string& value)
 		value = getString(OEGetBit(mode, MODE_PAGE2));
 	else if (name == "hires")
 		value = getString(OEGetBit(mode, MODE_HIRES));
+    else if (name == "model")
+        switch (model) {
+            case MODEL_II: value = "II"; break;
+            case MODEL_IIJPLUS: value = "II j-plus"; break;
+            case MODEL_IIE: value = "IIe"; break;
+            default: value = "";
+        }
 	else
 		return false;
-	
+
 	return true;
 }
 
