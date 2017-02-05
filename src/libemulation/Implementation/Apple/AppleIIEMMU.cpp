@@ -192,7 +192,7 @@ OEChar AppleIIEMMU::read(OEAddress address)
     }
     
     // Read softswitches
-    if ((address>=0xC011) && (address<=0xC01F)) {
+    else if ((address>=0xC011) && (address<=0xC01F)) {
         OEChar kbd = keyboard->read(0) & 0x7f;
         bool val = 0;
         switch (address) {
@@ -247,7 +247,7 @@ void AppleIIEMMU::write(OEAddress address, OEChar value)
     }
     
     // Softswitches
-    if ((address&0xFFF0)==0xC000) {
+    else if ((address&0xFFF0)==0xC000) {
         switch(address) {
             case 0xC000: if (_80store) { _80store = false; updateAuxmem(); }; break;
             case 0xC001: if (!_80store) { _80store = true; updateAuxmem(); }; break;

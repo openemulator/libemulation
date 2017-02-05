@@ -15,9 +15,6 @@
     <port id="appleIIe.gamePort" ref="appleHandControllers.connector" type="Apple II Game Port" group="peripherals" label="Game Port" image="images/Connectors/DIP16.png">
         <inlet ref="appleIIe.gamePort" property="gamePort" outletRef="io"/>
     </port>
-    <port id="appleIIe.slot0" ref="" type="Apple II Slot" group="expansions" label="Slot 0" image="images/Connectors/Edge50.png">
-        <inlet ref="appleIIe.io" property="refSlot0" outletRef="io"/>
-    </port>
     <port id="appleIIe.slot1" ref="" type="Apple II Slot" group="expansions" label="Slot 1" image="images/Connectors/Edge50.png">
         <inlet ref="appleIIe.io" property="refSlot1" outletRef="io"/>
         <inlet ref="appleIIe.memoryBus" property="refSlot1" outletRef="memory"/>
@@ -125,7 +122,7 @@
         <property name="refKeyboard" ref="appleIIe.keyboard"/>
         <property name="mapKeyboard" value="r:0x00-0x10,w:0x10-0x1f"/>
         <property name="refMMU" ref="appleIIe.mmu"/>
-        <property name="mapMMU" value="w:0x00-0x0b,r:0x11-0x1f"/>
+        <property name="mapMMU" value="w:0x00-0x0b,r:0x11-0x1f,0x80-0x8f"/>
         <property name="refSpeaker" ref="appleIIe.audioOut"/>
         <property name="mapSpeaker" value="0x20-0x3f"/>
         <property name="refGamePort" ref="appleIIe.gamePort"/>
@@ -134,8 +131,6 @@
         <property name="mapVideo" value="0x50-0x57,w:0xc-0xf"/>
         <property name="refAudioIn" ref="appleIIe.audioIn"/>
         <property name="mapAudioIn" value="0x60,0x68"/>
-        <property name="refSlot0" ref=""/>
-        <property name="mapSlot0" value="0x80-0x8f"/>
         <property name="refSlot1" ref=""/>
         <property name="mapSlot1" value="0x90-0x9f"/>
         <property name="refSlot2" ref=""/>
