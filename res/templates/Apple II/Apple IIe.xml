@@ -125,13 +125,13 @@
         <property name="refKeyboard" ref="appleIIe.keyboard"/>
         <property name="mapKeyboard" value="r:0x00-0x10,w:0x10-0x1f"/>
         <property name="refMMU" ref="appleIIe.mmu"/>
-        <property name="mapMMU" value="w:0x00-0x0f,r:0x10-0x1f"/>
+        <property name="mapMMU" value="w:0x00-0x0b,r:0x11-0x1f"/>
         <property name="refSpeaker" ref="appleIIe.audioOut"/>
         <property name="mapSpeaker" value="0x20-0x3f"/>
         <property name="refGamePort" ref="appleIIe.gamePort"/>
         <property name="mapGamePort" value="0x40-0x4f,0x58-0x5f,0x61-0x67,0x69-0x6f,0x70-0x7f"/>
         <property name="refVideo" ref="appleIIe.video"/>
-        <property name="mapVideo" value="0x50-0x57"/>
+        <property name="mapVideo" value="0x50-0x57,w:0xc-0xf"/>
         <property name="refAudioIn" ref="appleIIe.audioIn"/>
         <property name="mapAudioIn" value="0x60,0x68"/>
         <property name="refSlot0" ref=""/>
@@ -155,6 +155,7 @@
         <property name="bankSwitcher" ref="appleIIe.bankSwitcher"/>
         <property name="controlBus" ref="appleIIe.controlBus"/>
         <property name="floatingBus" ref="appleIIe.floatingBus"/>
+        <property name="keyboard" ref="appleIIe.keyboard"/>
         <property name="memoryBus" ref="appleIIe.memoryBus"/>
         <property name="video" ref="appleIIe.video"/>
     </component>

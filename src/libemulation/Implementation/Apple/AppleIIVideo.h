@@ -141,4 +141,7 @@ private:
     OEChar readFloatingBus();
     
     void copy(wstring *s);
+    
+    // Adding IIe 80col support
+    bool altchrset;
 };

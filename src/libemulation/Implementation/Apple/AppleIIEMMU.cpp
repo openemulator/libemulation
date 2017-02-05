@@ -11,21 +11,29 @@
 
 #include "AppleIIEMMU.h"
 
+#include "AppleIIInterface.h"
 #include "ControlBusInterface.h"
 
 AppleIIEMMU::AppleIIEMMU()
 {
+    bankSwitcher = NULL;
     controlBus = NULL;
 	floatingBus = NULL;
-    video = NULL;
-    
     memoryBus = NULL;
-    bankSwitcher = NULL;
+    video = NULL;
     
     bank1 = false;
     hramRead = false;
     preWrite = false;
     hramWrite = false;
+
+    ramrd = false;
+    ramwrt = false;
+    _80store = false;
+    intcxrom = false;
+    altzp = false;
+    slotc3rom = false;
+    intc8rom = false;
 }
 
 bool AppleIIEMMU::setValue(string name, string value)
@@ -38,6 +46,20 @@ bool AppleIIEMMU::setValue(string name, string value)
         preWrite = getOEInt(value);
     else if (name == "hramWrite")
         hramWrite = getOEInt(value);
+    else if (name == "ramrd")
+        ramrd = getOEInt(value);
+    else if (name == "ramwrt")
+        ramwrt = getOEInt(value);
+    else if (name == "80store")
+        _80store = getOEInt(value);
+    else if (name == "intcxrom")
+        intcxrom = getOEInt(value);
+    else if (name == "altzp")
+        altzp = getOEInt(value);
+    else if (name == "slotc3rom")
+        slotc3rom = getOEInt(value);
+    else if (name == "intc8rom")
+        intc8rom = getOEInt(value);
     else
         return false;
     
@@ -54,6 +76,20 @@ bool AppleIIEMMU::getValue(string name, string& value)
         value = getString(preWrite);
     else if (name == "hramWrite")
         value = getString(hramWrite);
+    else if (name == "ramrd")
+        value = getString(ramrd);
+    else if (name == "ramwrt")
+        value = getString(ramwrt);
+    else if (name == "80store")
+        value = getString(_80store);
+    else if (name == "intcxrom")
+        value = getString(intcxrom);
+    else if (name == "altzp")
+        value = getString(altzp);
+    else if (name == "slotc3rom")
+        value = getString(slotc3rom);
+    else if (name == "intc8rom")
+        value = getString(intc8rom);
     else
         return false;
     
@@ -70,12 +106,14 @@ bool AppleIIEMMU::setRef(string name, OEComponent *ref)
         if (controlBus)
             controlBus->addObserver(this, CONTROLBUS_POWERSTATE_DID_CHANGE);
     }
-    else if (name == "memoryBus")
-        memoryBus = ref;
-    else if (name == "floatingBus")
-        floatingBus = ref;
     else if (name == "bankSwitcher")
         bankSwitcher = ref;
+    else if (name == "floatingBus")
+        floatingBus = ref;
+    else if (name == "keyboard")
+        keyboard = ref;
+    else if (name == "memoryBus")
+        memoryBus = ref;
    else if (name == "video")
         video = ref;
 	else
@@ -121,7 +159,15 @@ void AppleIIEMMU::notify(OEComponent *sender, int notification, void *data)
         hramRead = false;
         preWrite = false;
         hramWrite = false;
-        
+
+        ramrd = false;
+        ramwrt = false;
+        _80store = false;
+        intcxrom = false;
+        altzp = false;
+        slotc3rom = false;
+        intc8rom = false;
+
         updateBankSwitcher();
         updateBankOffset();
     }
@@ -144,7 +190,47 @@ OEChar AppleIIEMMU::read(OEAddress address)
         setBank1(address & 0x8);
         updateBankSwitcher();
     }
+    
+    // Read softswitches
+    if ((address>=0xC011) && (address<=0xC01F)) {
+        OEChar kbd = keyboard->read(0) & 0x7f;
+        bool val = 0;
+        switch (address) {
+            case 0xC011: val = !bank1; break;
+            case 0xC012: val = hramRead; break;
+            case 0xC013: val = ramrd; break;
+            case 0xC014: val = ramwrt; break;
+            case 0xC015: val = intcxrom; break;
+            case 0xC016: val = altzp; break;
+            case 0xC017: val = slotc3rom; break;
+            case 0xC018: val = _80store; break;
+            case 0xC019:
+                bool vbl;
+                video->postMessage(this, APPLEII_IS_VBL, &vbl);
+                val = !vbl; break;
+            case 0xC01A: val = getVideoBool("text"); break;
+            case 0xC01B: val = getVideoBool("mixed"); break;
+            case 0xC01C: val = getVideoBool("page2"); break;
+            case 0xC01D: val = getVideoBool("hires"); break;
+            case 0xC01E: val = getVideoBool("altchrset"); break;
+            case 0xC01F: val = getVideoBool("80col"); break;
+        }
+        if (val) {
+            return 0x80 | kbd;
+        } else {
+            return kbd;
+        }
+    }
     return floatingBus->read(address);
+}
+
+bool AppleIIEMMU::getVideoBool(string property) {
+    string value;
+    if (!video->getValue(property, value)) {
+        logMessage("unable to retrieve video property '" + property + "'");
+        return false;
+    };
+    return getOEInt(value);
 }
 
 void AppleIIEMMU::write(OEAddress address, OEChar value)
@@ -158,6 +244,24 @@ void AppleIIEMMU::write(OEAddress address, OEChar value)
         hramRead = !(((address >> 1) ^ address) & 1);
         setBank1(address & 0x8);
         updateBankSwitcher();
+    }
+    
+    // Softswitches
+    if ((address&0xFFF0)==0xC000) {
+        switch(address) {
+            case 0xC000: if (_80store) { _80store = false; updateAuxmem(); }; break;
+            case 0xC001: if (!_80store) { _80store = true; updateAuxmem(); }; break;
+            case 0xC002: if (ramrd) { ramrd = false; updateAuxmem(); }; break;
+            case 0xC003: if (!ramrd) { ramrd = true; updateAuxmem(); }; break;
+            case 0xC004: if (ramwrt) { ramwrt = false; updateAuxmem(); }; break;
+            case 0xC005: if (!ramwrt) { ramwrt = true; updateAuxmem(); }; break;
+            case 0xC006: if (intcxrom) { intcxrom = false; updateCxxxRom(); }; break;
+            case 0xC007: if (!intcxrom) { intcxrom = true; updateCxxxRom(); }; break;
+            case 0xC008: if (altzp) { altzp = false; updateAuxmem(); }; break;
+            case 0xC009: if (!altzp) { altzp = true; updateAuxmem(); }; break;
+            case 0xC00A: if (slotc3rom) { slotc3rom = false; updateCxxxRom(); }; break;
+            case 0xC00B: if (!slotc3rom) { slotc3rom = true; updateCxxxRom(); }; break;
+        }
     }
 }
 
@@ -189,11 +293,19 @@ void AppleIIEMMU::updateBankSwitcher()
         return;
     
     if (hramMap.read || hramMap.write)
-        memoryBus->postMessage(this, ADDRESSDECODER_UNMAP, &hramMap);
+        memoryBus->postMessage(this, APPLEII_UNMAP_INTERNAL, &hramMap);
     
     hramMap.read = hramRead;
     hramMap.write = hramWrite;
     
     if (hramMap.read || hramMap.write)
-        memoryBus->postMessage(this, ADDRESSDECODER_MAP, &hramMap);
+        memoryBus->postMessage(this, APPLEII_MAP_INTERNAL, &hramMap);
+}
+
+void AppleIIEMMU::updateAuxmem() {
+    
+}
+
+void AppleIIEMMU::updateCxxxRom() {
+    
 }

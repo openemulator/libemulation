@@ -25,6 +25,7 @@
 #define MODE_MIXED      (1 << 1)
 #define MODE_PAGE2      (1 << 2)
 #define MODE_HIRES      (1 << 3)
+#define MODE_80COL      (1 << 4)
 
 #define CHAR_NUM        0x100
 #define CHAR_WIDTH      16
@@ -122,6 +123,8 @@ AppleIIVideo::AppleIIVideo()
     an2 = false;
     monitorConnected = false;
     videoInhibitCount = 0;
+    
+    altchrset = false;
 }
 
 bool AppleIIVideo::setValue(string name, string value)
@@ -160,8 +163,12 @@ bool AppleIIVideo::setValue(string name, string value)
         OESetBit(mode, MODE_MIXED, getOEInt(value));
 	else if (name == "page2")
         OESetBit(mode, MODE_PAGE2, getOEInt(value));
-	else if (name == "hires")
+    else if (name == "hires")
         OESetBit(mode, MODE_HIRES, getOEInt(value));
+    else if (name == "80col")
+        OESetBit(mode, MODE_80COL, getOEInt(value));
+    else if (name == "altchrset")
+        altchrset = getOEInt(value);
 	else if (name == "vram0000Offset")
         vram0000Offset = getOEInt(value);
 	else if (name == "vram1000Offset")
@@ -205,8 +212,12 @@ bool AppleIIVideo::getValue(string name, string& value)
 		value = getString(OEGetBit(mode, MODE_MIXED));
 	else if (name == "page2")
 		value = getString(OEGetBit(mode, MODE_PAGE2));
-	else if (name == "hires")
-		value = getString(OEGetBit(mode, MODE_HIRES));
+    else if (name == "hires")
+        value = getString(OEGetBit(mode, MODE_HIRES));
+    else if (name == "80col")
+        value = getString(OEGetBit(mode, MODE_80COL));
+    else if (name == "altchrset")
+        value = getString(altchrset);
     else if (name == "model")
         switch (model) {
             case MODEL_II: value = "II"; break;
@@ -496,6 +507,12 @@ OEChar AppleIIVideo::read(OEAddress address)
 
 void AppleIIVideo::write(OEAddress address, OEChar value)
 {
+    // Apple IIe softswitches.
+    switch (address) {
+        case 0xC00C: case 0xC00D: setMode(MODE_80COL, address & 0x1); return;
+        case 0xC00E: case 0xC00F: altchrset = address & 0x1; return;
+    }
+    
     switch (address & 0x7f)
     {
         case 0x50: case 0x51:

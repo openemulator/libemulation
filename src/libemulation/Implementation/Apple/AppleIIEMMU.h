@@ -26,13 +26,14 @@ public:
     
     OEChar read(OEAddress address);
     void write(OEAddress address, OEChar value);
-    
+
 private:
+    OEComponent *bankSwitcher;
     OEComponent *controlBus;
     OEComponent *floatingBus;
-    OEComponent *video;
+    OEComponent *keyboard;
     OEComponent *memoryBus;
-    OEComponent *bankSwitcher;
+    OEComponent *video;
     
     bool bank1;
     bool hramRead;
@@ -40,7 +41,19 @@ private:
     bool hramWrite;
     MemoryMap hramMap;
     
+    bool ramrd;
+    bool ramwrt;
+    bool _80store;
+    bool intcxrom;
+    bool altzp;
+    bool slotc3rom;
+    bool intc8rom;
+    
     void setBank1(bool value);
     void updateBankOffset();
     void updateBankSwitcher();
+
+    bool getVideoBool(string property);
+    void updateAuxmem();
+    void updateCxxxRom();
 };

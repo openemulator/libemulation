@@ -22,17 +22,29 @@ bool AppleIIEAddressDecoder::postMessage(OEComponent *sender, int message, void 
     {
         case ADDRESSDECODER_MAP:
             return addMemoryMap(externalMemoryMaps, (MemoryMap *) data);
-            
+
         case ADDRESSDECODER_UNMAP:
             return removeMemoryMap(externalMemoryMaps, (MemoryMap *) data);
-            
+
         case APPLEII_MAP_SLOT:
             return addMemoryMap(ioMemoryMaps, (MemoryMap *) data);
-            
+
         case APPLEII_UNMAP_SLOT:
             return removeMemoryMap(ioMemoryMaps, (MemoryMap *) data);
+
+        case APPLEII_MAP_CXXX:
+            return addMemoryMap(cxxxMemoryMaps, (MemoryMap *) data);
+            
+        case APPLEII_UNMAP_CXXX:
+            return removeMemoryMap(cxxxMemoryMaps, (MemoryMap *) data);
+
+        case APPLEII_MAP_INTERNAL:
+            return addMemoryMap(internalMemoryMaps, (MemoryMap *) data);
+            
+        case APPLEII_UNMAP_INTERNAL:
+            return removeMemoryMap(internalMemoryMaps, (MemoryMap *) data);
     }
-    
+
     return false;
 }
 
