@@ -34,6 +34,9 @@ AppleIIEMMU::AppleIIEMMU()
     altzp = false;
     slotc3rom = false;
     intc8rom = false;
+    
+    hires = false;
+    page2 = false;
 }
 
 bool AppleIIEMMU::setValue(string name, string value)
@@ -114,8 +117,17 @@ bool AppleIIEMMU::setRef(string name, OEComponent *ref)
         keyboard = ref;
     else if (name == "memoryBus")
         memoryBus = ref;
-   else if (name == "video")
+    else if (name == "video") {
+        if (video) {
+            video->removeObserver(this, APPLEII_HIRES_DID_CHANGE);
+            video->removeObserver(this, APPLEII_PAGE2_DID_CHANGE);
+        }
         video = ref;
+        if (video) {
+            video->addObserver(this, APPLEII_HIRES_DID_CHANGE);
+            video->addObserver(this, APPLEII_PAGE2_DID_CHANGE);
+        }
+    }
 	else
 		return false;
 	
@@ -150,26 +162,43 @@ bool AppleIIEMMU::init()
 
 void AppleIIEMMU::notify(OEComponent *sender, int notification, void *data)
 {
-    // TODO(zellyn): handle resets too. This is just copied from AppleLanguageCard.cpp
-    ControlBusPowerState powerState = *((ControlBusPowerState *)data);
+    if (sender == controlBus) {
+        // TODO(zellyn): handle resets too. This is just copied from AppleLanguageCard.cpp
+        ControlBusPowerState powerState = *((ControlBusPowerState *)data);
+        
+        if (powerState == CONTROLBUS_POWERSTATE_OFF)
+        {
+            bank1 = false;
+            hramRead = false;
+            preWrite = false;
+            hramWrite = false;
+
+            ramrd = false;
+            ramwrt = false;
+            _80store = false;
+            intcxrom = false;
+            altzp = false;
+            slotc3rom = false;
+            intc8rom = false;
+            
+            hires = false;
+            page2 = false;
+
+            updateBankSwitcher();
+            updateBankOffset();
+        }
+    }
     
-    if (powerState == CONTROLBUS_POWERSTATE_OFF)
-    {
-        bank1 = false;
-        hramRead = false;
-        preWrite = false;
-        hramWrite = false;
-
-        ramrd = false;
-        ramwrt = false;
-        _80store = false;
-        intcxrom = false;
-        altzp = false;
-        slotc3rom = false;
-        intc8rom = false;
-
-        updateBankSwitcher();
-        updateBankOffset();
+    if (sender == video) {
+        bool value = *((bool *)data);
+        if (notification==APPLEII_HIRES_DID_CHANGE) {
+            hires = value;
+            updateAuxmem();
+        }
+        else if (notification==APPLEII_PAGE2_DID_CHANGE) {
+            page2 = value;
+            updateAuxmem();
+        }
     }
 }
 
@@ -210,8 +239,8 @@ OEChar AppleIIEMMU::read(OEAddress address)
                 val = !vbl; break;
             case 0xC01A: val = getVideoBool("text"); break;
             case 0xC01B: val = getVideoBool("mixed"); break;
-            case 0xC01C: val = getVideoBool("page2"); break;
-            case 0xC01D: val = getVideoBool("hires"); break;
+            case 0xC01C: val = page2; break;
+            case 0xC01D: val = hires; break;
             case 0xC01E: val = getVideoBool("altchrset"); break;
             case 0xC01F: val = getVideoBool("80col"); break;
         }

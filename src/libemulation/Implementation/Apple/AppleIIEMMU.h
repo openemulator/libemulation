@@ -49,6 +49,10 @@ private:
     bool slotc3rom;
     bool intc8rom;
     
+    // Copies of the video's values
+    bool hires;
+    bool page2;
+    
     void setBank1(bool value);
     void updateBankOffset();
     void updateBankSwitcher();

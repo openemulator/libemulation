@@ -513,6 +513,7 @@ void AppleIIVideo::write(OEAddress address, OEChar value)
         case 0xC00E: case 0xC00F: altchrset = address & 0x1; return;
     }
     
+    OEInt oldMode = mode;
     switch (address & 0x7f)
     {
         case 0x50: case 0x51:
@@ -527,11 +528,19 @@ void AppleIIVideo::write(OEAddress address, OEChar value)
             
         case 0x54: case 0x55:
             setMode(MODE_PAGE2, address & 0x1);
+            if (oldMode != mode) {
+                bool page2 = OEGetBit(mode, MODE_PAGE2);
+                postNotification(this, APPLEII_PAGE2_DID_CHANGE, &page2);
+            }
             
             break;
             
         case 0x56: case 0x57:
             setMode(MODE_HIRES, address & 0x1);
+            if (oldMode != mode) {
+                bool hires = OEGetBit(mode, MODE_HIRES);
+                postNotification(this, APPLEII_HIRES_DID_CHANGE, &hires);
+            }
             
             break;
     }
