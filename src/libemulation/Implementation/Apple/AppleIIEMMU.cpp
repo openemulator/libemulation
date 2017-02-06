@@ -117,6 +117,8 @@ bool AppleIIEMMU::setRef(string name, OEComponent *ref)
         keyboard = ref;
     else if (name == "memoryBus")
         memoryBus = ref;
+    else if (name == "ramMapper")
+        ramMapper = ref;
     else if (name == "video") {
         if (video) {
             video->removeObserver(this, APPLEII_HIRES_DID_CHANGE);
@@ -332,7 +334,54 @@ void AppleIIEMMU::updateBankSwitcher()
 }
 
 void AppleIIEMMU::updateAuxmem() {
+    string sel;
+
+    /*
+    Main00_01
+    Main02_03
+    Main04_07
+    Main08_1F
+    Main20_3F
+    Main40_BF
+    MainC0_FF
+    */
+
+    sel = altzp ? "Aux00_01,AuxC0_FF" : "Main00_01,MainC0_FF";
     
+    if (ramrd) {
+        sel += ",AuxR02_03,AuxR08_1F,AuxR40_BF";
+        if (!_80store) sel += ",AuxR04_07";
+        if (!_80store||!hires) sel += ",AuxR20_3F";
+    } else {
+        sel += ",MainR02_03,MainR08_1F,MainR40_BF";
+        if (!_80store) sel += ",MainR04_07";
+        if (!_80store||!hires) sel += ",MainR20_3F";
+    }
+    if (ramwrt) {
+        sel += ",AuxW02_03,AuxW08_1F,AuxW40_BF";
+        if (!_80store) sel += ",AuxW04_07";
+        if (!_80store||!hires) sel += ",AuxW20_3F";
+    } else {
+        sel += ",MainW02_03,MainW08_1F,MainW40_BF";
+        if (!_80store) sel += ",MainW04_07";
+        if (!_80store||!hires) sel += ",MainW20_3F";
+    }
+
+    if (_80store) {
+        if (page2) {
+            sel += ",AuxR04_07,AuxW04_07";
+            if (hires) {
+                sel += ",AuxR20_3F,AuxW20_3F";
+            }
+        }
+        else {
+            sel += ",MainR04_07,MainW04_07";
+            if (hires) {
+                sel += ",MainR20_3F,MainW20_3F";
+            }
+        }
+    }
+    ramMapper->postMessage(this, ADDRESSMAPPER_SELECT, &sel);
 }
 
 void AppleIIEMMU::updateCxxxRom() {

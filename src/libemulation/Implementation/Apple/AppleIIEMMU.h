@@ -33,6 +33,7 @@ private:
     OEComponent *floatingBus;
     OEComponent *keyboard;
     OEComponent *memoryBus;
+    OEComponent *ramMapper;
     OEComponent *video;
     
     bool bank1;

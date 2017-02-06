@@ -124,35 +124,55 @@
 
         <property name="mapMain00_01" value="0x0000-0x01ff"/>
         <property name="refMain00_01" ref="appleIIe.mainRam"/>
-        <property name="mapMain02_03" value="0x0200-0x03ff"/>
-        <property name="refMain02_03" ref="appleIIe.mainRam"/>
-        <property name="mapMain04_07" value="0x0400-0x07ff"/>
-        <property name="refMain04_07" ref="appleIIe.mainRam"/>
-        <property name="mapMain08_1F" value="0x0800-0x1fff"/>
-        <property name="refMain08_1F" ref="appleIIe.mainRam"/>
-        <property name="mapMain20_3F" value="0x2000-0x3fff"/>
-        <property name="refMain20_3F" ref="appleIIe.mainRam"/>
-        <property name="mapMain40_BF" value="0x4000-0xbfff"/>
-        <property name="refMain40_BF" ref="appleIIe.mainRam"/>
+        <property name="mapMainR02_03" value="r:0x0200-0x03ff"/>
+        <property name="refMainR02_03" ref="appleIIe.mainRam"/>
+        <property name="mapMainW02_03" value="w:0x0200-0x03ff"/>
+        <property name="refMainW02_03" ref="appleIIe.mainRam"/>
+        <property name="mapMainR04_07" value="r:0x0400-0x07ff"/>
+        <property name="refMainR04_07" ref="appleIIe.mainRam"/>
+        <property name="mapMainW04_07" value="w:0x0400-0x07ff"/>
+        <property name="refMainW04_07" ref="appleIIe.mainRam"/>
+        <property name="mapMainR08_1F" value="r:0x0800-0x1fff"/>
+        <property name="refMainR08_1F" ref="appleIIe.mainRam"/>
+        <property name="mapMainW08_1F" value="w:0x0800-0x1fff"/>
+        <property name="refMainW08_1F" ref="appleIIe.mainRam"/>
+        <property name="mapMainR20_3F" value="r:0x2000-0x3fff"/>
+        <property name="refMainR20_3F" ref="appleIIe.mainRam"/>
+        <property name="mapMainW20_3F" value="w:0x2000-0x3fff"/>
+        <property name="refMainW20_3F" ref="appleIIe.mainRam"/>
+        <property name="mapMainR40_BF" value="r:0x4000-0xbfff"/>
+        <property name="refMainR40_BF" ref="appleIIe.mainRam"/>
+        <property name="mapMainW40_BF" value="w:0x4000-0xbfff"/>
+        <property name="refMainW40_BF" ref="appleIIe.mainRam"/>
         <property name="mapMainC0_FF" value="0xc000-0xffff"/>
         <property name="refMainC0_FF" ref="appleIIe.mainRam"/>
-        
+
         <property name="mapAux00_01" value="0x0000-0x01ff"/>
         <property name="refAux00_01" ref="appleIIe.auxRam"/>
-        <property name="mapAux02_03" value="0x0200-0x03ff"/>
-        <property name="refAux02_03" ref="appleIIe.auxRam"/>
-        <property name="mapAux04_07" value="0x0400-0x07ff"/>
-        <property name="refAux04_07" ref="appleIIe.auxRam"/>
-        <property name="mapAux08_1F" value="0x0800-0x1fff"/>
-        <property name="refAux08_1F" ref="appleIIe.auxRam"/>
-        <property name="mapAux20_3F" value="0x2000-0x3fff"/>
-        <property name="refAux20_3F" ref="appleIIe.auxRam"/>
-        <property name="mapAux40_BF" value="0x4000-0xbfff"/>
-        <property name="refAux40_BF" ref="appleIIe.auxRam"/>
+        <property name="mapAuxR02_03" value="r:0x0200-0x03ff"/>
+        <property name="refAuxR02_03" ref="appleIIe.auxRam"/>
+        <property name="mapAuxW02_03" value="w:0x0200-0x03ff"/>
+        <property name="refAuxW02_03" ref="appleIIe.auxRam"/>
+        <property name="mapAuxR04_07" value="r:0x0400-0x07ff"/>
+        <property name="refAuxR04_07" ref="appleIIe.auxRam"/>
+        <property name="mapAuxW04_07" value="w:0x0400-0x07ff"/>
+        <property name="refAuxW04_07" ref="appleIIe.auxRam"/>
+        <property name="mapAuxR08_1F" value="r:0x0800-0x1fff"/>
+        <property name="refAuxR08_1F" ref="appleIIe.auxRam"/>
+        <property name="mapAuxW08_1F" value="w:0x0800-0x1fff"/>
+        <property name="refAuxW08_1F" ref="appleIIe.auxRam"/>
+        <property name="mapAuxR20_3F" value="r:0x2000-0x3fff"/>
+        <property name="refAuxR20_3F" ref="appleIIe.auxRam"/>
+        <property name="mapAuxW20_3F" value="w:0x2000-0x3fff"/>
+        <property name="refAuxW20_3F" ref="appleIIe.auxRam"/>
+        <property name="mapAuxR40_BF" value="r:0x4000-0xbfff"/>
+        <property name="refAuxR40_BF" ref="appleIIe.auxRam"/>
+        <property name="mapAuxW40_BF" value="w:0x4000-0xbfff"/>
+        <property name="refAuxW40_BF" ref="appleIIe.auxRam"/>
         <property name="mapAuxC0_FF" value="0xc000-0xffff"/>
         <property name="refAuxC0_FF" ref="appleIIe.auxRam"/>
-        
-        <property name="sel" value="Main00_01,Main02_03,Main04_07,Main08_1F,Main20_3F,Main40_BF,MainC0_FF"/>
+
+        <property name="sel" value="Main00_01,MainR02_03,MainW02_03,MainR04_07,MainW04_07,MainR08_1F,MainW08_1F,MainR20_3F,MainW20_3F,MainR40_BF,MainW40_BF,MainC0_FF"/>
     </component>
     <component id="appleIIe.io" class="AddressDecoder">
         <property name="size" value="0x100"/>
@@ -191,6 +211,7 @@
         <property name="floatingBus" ref="appleIIe.floatingBus"/>
         <property name="keyboard" ref="appleIIe.keyboard"/>
         <property name="memoryBus" ref="appleIIe.memoryBus"/>
+        <property name="ramMapper" ref="appleIIe.ramMapper"/>
         <property name="video" ref="appleIIe.video"/>
     </component>
     <component id="appleIIe.bankSwitcher" class="AddressOffset">
