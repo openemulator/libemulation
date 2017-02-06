@@ -103,8 +103,6 @@
         <property name="size" value="0x10000"/>
         <property name="blockSize" value="0x100"/>
         <property name="floatingBus" ref="appleIIe.floatingBus"/>
-        <property name="refMainRam" ref="appleIIe.mainRam"/>
-        <property name="mapMainRam" value="0x0000-0xffff"/>
     </component>
     <component id="appleIIe.mainRam" class="VRAM">
         <property name="size" value="0x10000"/>
@@ -114,6 +112,47 @@
         <property name="videoBlockSize" value="0x400"/>
         <property name="videoMap" value="0x400-0xbff,0x2000-0x3fff,0x4000-0x5fff"/>
         <property name="videoObserver" ref="appleIIe.video"/>
+    </component>
+    <component id="appleIIe.auxRam" class="RAM">
+        <property name="size" value="0x10000"/>
+        <property name="memoryImage" data="${packagePath}/${id}.bin"/>
+        <property name="controlBus" ref="appleIIe.controlBus"/>
+        <property name="powerOnPattern" value="0xffff0000"/>
+    </component>
+    <component id="appleIIe.ramMapper" class="AddressMapper">
+        <property name="addressDecoder" ref="appleIIe.ram"/>
+
+        <property name="mapMain00_01" value="0x0000-0x01ff"/>
+        <property name="refMain00_01" ref="appleIIe.mainRam"/>
+        <property name="mapMain02_03" value="0x0200-0x03ff"/>
+        <property name="refMain02_03" ref="appleIIe.mainRam"/>
+        <property name="mapMain04_07" value="0x0400-0x07ff"/>
+        <property name="refMain04_07" ref="appleIIe.mainRam"/>
+        <property name="mapMain08_1F" value="0x0800-0x1fff"/>
+        <property name="refMain08_1F" ref="appleIIe.mainRam"/>
+        <property name="mapMain20_3F" value="0x2000-0x3fff"/>
+        <property name="refMain20_3F" ref="appleIIe.mainRam"/>
+        <property name="mapMain40_BF" value="0x4000-0xbfff"/>
+        <property name="refMain40_BF" ref="appleIIe.mainRam"/>
+        <property name="mapMainC0_FF" value="0xc000-0xffff"/>
+        <property name="refMainC0_FF" ref="appleIIe.mainRam"/>
+        
+        <property name="mapAux00_01" value="0x0000-0x01ff"/>
+        <property name="refAux00_01" ref="appleIIe.auxRam"/>
+        <property name="mapAux02_03" value="0x0200-0x03ff"/>
+        <property name="refAux02_03" ref="appleIIe.auxRam"/>
+        <property name="mapAux04_07" value="0x0400-0x07ff"/>
+        <property name="refAux04_07" ref="appleIIe.auxRam"/>
+        <property name="mapAux08_1F" value="0x0800-0x1fff"/>
+        <property name="refAux08_1F" ref="appleIIe.auxRam"/>
+        <property name="mapAux20_3F" value="0x2000-0x3fff"/>
+        <property name="refAux20_3F" ref="appleIIe.auxRam"/>
+        <property name="mapAux40_BF" value="0x4000-0xbfff"/>
+        <property name="refAux40_BF" ref="appleIIe.auxRam"/>
+        <property name="mapAuxC0_FF" value="0xc000-0xffff"/>
+        <property name="refAuxC0_FF" ref="appleIIe.auxRam"/>
+        
+        <property name="sel" value="Main00_01,Main02_03,Main04_07,Main08_1F,Main20_3F,Main40_BF,MainC0_FF"/>
     </component>
     <component id="appleIIe.io" class="AddressDecoder">
         <property name="size" value="0x100"/>
