@@ -20,6 +20,8 @@ AppleIIEMMU::AppleIIEMMU()
     controlBus = NULL;
 	floatingBus = NULL;
     memoryBus = NULL;
+    ramMapper = NULL;
+    romC0DF = NULL;
     video = NULL;
     
     bank1 = false;
@@ -119,6 +121,8 @@ bool AppleIIEMMU::setRef(string name, OEComponent *ref)
         memoryBus = ref;
     else if (name == "ramMapper")
         ramMapper = ref;
+    else if (name == "romC0DF")
+        romC0DF = ref;
     else if (name == "video") {
         if (video) {
             video->removeObserver(this, APPLEII_HIRES_DID_CHANGE);
@@ -138,11 +142,13 @@ bool AppleIIEMMU::setRef(string name, OEComponent *ref)
 
 bool AppleIIEMMU::init()
 {
+    OECheckComponent(bankSwitcher);
     OECheckComponent(controlBus);
     OECheckComponent(floatingBus);
-    OECheckComponent(video);
     OECheckComponent(memoryBus);
-    OECheckComponent(bankSwitcher);
+    OECheckComponent(ramMapper);
+    OECheckComponent(romC0DF);
+    OECheckComponent(video);
 
     string videoModel;
     if (!video->getValue("model", videoModel) || videoModel != "IIe") {
@@ -154,10 +160,24 @@ bool AppleIIEMMU::init()
     hramMap.startAddress = 0xd000;
     hramMap.endAddress = 0xffff;
     hramMap.read = false;
-    hramMap.write = false;
+    hramMap.write = false;    
+
+    // Initialize maps used to send Cxxx ROM reads/writes to the MMU.
+    for (int i=0; i < 4; i++) {
+        cxxxMaps[i].component = this;
+        cxxxMaps[i].read = false;
+        cxxxMaps[i].write = false;
+    }
+    cxxxMaps[0].startAddress = 0xC100; cxxxMaps[0].endAddress = 0xC2ff;
+    cxxxMaps[1].startAddress = 0xC300; cxxxMaps[1].endAddress = 0xC3ff;
+    cxxxMaps[2].startAddress = 0xC400; cxxxMaps[2].endAddress = 0xC7ff;
+    cxxxMaps[3].startAddress = 0xC800; cxxxMaps[3].endAddress = 0xCfff;
 
     updateBankSwitcher();
     updateBankOffset();
+
+    updateAuxmem();
+    updateCxxxRom();
 
     return true;
 }
@@ -188,6 +208,8 @@ void AppleIIEMMU::notify(OEComponent *sender, int notification, void *data)
 
             updateBankSwitcher();
             updateBankOffset();
+            updateAuxmem();
+            updateCxxxRom();
         }
     }
     
@@ -252,6 +274,26 @@ OEChar AppleIIEMMU::read(OEAddress address)
             return kbd;
         }
     }
+
+    else if ((address>=0xc100)&&(address<=0xcfff)) {
+        if ((address>=0xc300)&&(address<=0xc3ff)) {
+            if (!slotc3rom && !intc8rom) {
+                intc8rom = true;
+                updateCxxxRom();
+            }
+        }
+        else if (address==0xcfff) {
+            if (intc8rom) {
+                intc8rom = false;
+                updateCxxxRom();
+                if (!intcxrom) {
+                    memoryBus->read(address);
+                }
+            }
+        }
+        return romC0DF->read(address);
+    }
+
     return floatingBus->read(address);
 }
 
@@ -292,6 +334,18 @@ void AppleIIEMMU::write(OEAddress address, OEChar value)
             case 0xC009: if (!altzp) { altzp = true; updateAuxmem(); }; break;
             case 0xC00A: if (slotc3rom) { slotc3rom = false; updateCxxxRom(); }; break;
             case 0xC00B: if (!slotc3rom) { slotc3rom = true; updateCxxxRom(); }; break;
+        }
+    }
+    else if ((address>=0xc300)&&(address<=0xc3ff)) {
+        if (!slotc3rom && !intc8rom) {
+            intc8rom = true;
+            updateCxxxRom();
+        }
+    }
+    else if (address==0xcfff) {
+        if (intc8rom) {
+            intc8rom = false;
+            updateCxxxRom();
         }
     }
 }
@@ -336,16 +390,6 @@ void AppleIIEMMU::updateBankSwitcher()
 void AppleIIEMMU::updateAuxmem() {
     string sel;
 
-    /*
-    Main00_01
-    Main02_03
-    Main04_07
-    Main08_1F
-    Main20_3F
-    Main40_BF
-    MainC0_FF
-    */
-
     sel = altzp ? "Aux00_01,AuxC0_FF" : "Main00_01,MainC0_FF";
     
     if (ramrd) {
@@ -385,5 +429,22 @@ void AppleIIEMMU::updateAuxmem() {
 }
 
 void AppleIIEMMU::updateCxxxRom() {
-    
+    for (int i=0; i < 4; i++) {
+        MemoryMap *map = &cxxxMaps[i];
+        if (map->read||map->write)
+            memoryBus->postMessage(this, APPLEII_UNMAP_CXXX, map);
+    }
+
+    cxxxMaps[0].read = intcxrom;
+    cxxxMaps[1].read = intcxrom || !slotc3rom;
+    cxxxMaps[1].write = intcxrom || !slotc3rom;
+    cxxxMaps[2].read = intcxrom;
+    cxxxMaps[3].read = intcxrom || intc8rom;
+    cxxxMaps[3].write = intcxrom || intc8rom;
+
+    for (int i=0; i < 4; i++) {
+        MemoryMap *map = &cxxxMaps[i];
+        if (map->read||map->write)
+            memoryBus->postMessage(this, APPLEII_MAP_CXXX, map);
+    }
 }

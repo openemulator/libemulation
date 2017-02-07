@@ -34,6 +34,7 @@ private:
     OEComponent *keyboard;
     OEComponent *memoryBus;
     OEComponent *ramMapper;
+    OEComponent *romC0DF;
     OEComponent *video;
     
     bool bank1;
@@ -60,5 +61,7 @@ private:
 
     bool getVideoBool(string property);
     void updateAuxmem();
+    
+    MemoryMap cxxxMaps[4];
     void updateCxxxRom();
 };

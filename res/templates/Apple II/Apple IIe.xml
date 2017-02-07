@@ -212,6 +212,7 @@
         <property name="keyboard" ref="appleIIe.keyboard"/>
         <property name="memoryBus" ref="appleIIe.memoryBus"/>
         <property name="ramMapper" ref="appleIIe.ramMapper"/>
+        <property name="romC0DF" ref="appleIIe.romC0DF"/>
         <property name="video" ref="appleIIe.video"/>
     </component>
     <component id="appleIIe.bankSwitcher" class="AddressOffset">
