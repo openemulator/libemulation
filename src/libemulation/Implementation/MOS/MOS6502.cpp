@@ -264,7 +264,7 @@ void MOS6502::execute()
         }
         else
         {
-
+/*
             static bool cap = true;
             static unsigned long long limit = 1000;
             static unsigned long long count = 0;
@@ -291,7 +291,7 @@ void MOS6502::execute()
                   cap = false;
                 }
             }
-
+*/
             
             OEChar opcode = RDOP();
             
