@@ -95,7 +95,7 @@
         <property name="refSlot7" ref=""/>
         <property name="mapSlot7" value="0xc700-0xc7ff"/>
         <property name="refROMC0DF" ref="appleIIe.romC0DF"/>
-        <property name="mapROMC0DF" value="0xd000-0xd7ff"/>
+        <property name="mapROMC0DF" value="0xd000-0xdfff"/>
         <property name="refROME0FF" ref="appleIIe.romE0FF"/>
         <property name="mapROME0FF" value="0xe000-0xffff"/>
     </component>
