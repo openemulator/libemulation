@@ -55,8 +55,9 @@ bool AppleIIEMMU::setValue(string name, string value)
         ramrd = getOEInt(value);
     else if (name == "ramwrt")
         ramwrt = getOEInt(value);
-    else if (name == "80store")
+    else if (name == "80store") {
         _80store = getOEInt(value);
+    }
     else if (name == "intcxrom")
         intcxrom = getOEInt(value);
     else if (name == "altzp")
@@ -318,12 +319,20 @@ void AppleIIEMMU::write(OEAddress address, OEChar value)
         setBank1(address & 0x8);
         updateBankSwitcher();
     }
-    
+
     // Softswitches
     else if ((address&0xFFF0)==0xC000) {
         switch(address) {
-            case 0xC000: if (_80store) { _80store = false; updateAuxmem(); }; break;
-            case 0xC001: if (!_80store) { _80store = true; updateAuxmem(); }; break;
+            case 0xC000: if (_80store) {
+                _80store = false;
+                updateAuxmem();
+                video->postMessage(this, APPLEII_80STORE_DID_CHANGE, &_80store);
+            }; break;
+            case 0xC001: if (!_80store) {
+                _80store = true;
+                updateAuxmem();
+                video->postMessage(this, APPLEII_80STORE_DID_CHANGE, &_80store);
+            }; break;
             case 0xC002: if (ramrd) { ramrd = false; updateAuxmem(); }; break;
             case 0xC003: if (!ramrd) { ramrd = true; updateAuxmem(); }; break;
             case 0xC004: if (ramwrt) { ramwrt = false; updateAuxmem(); }; break;

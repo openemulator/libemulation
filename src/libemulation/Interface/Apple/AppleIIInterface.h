@@ -66,6 +66,7 @@ typedef enum
     APPLEII_IS_VIDEO_INHIBITED,
     APPLEII_IS_MONITOR_CONNECTED,
     APPLEII_VIDEO_END,
+    APPLEII_80STORE_DID_CHANGE,
 } AppleIIVideoMessage;
 
 typedef enum

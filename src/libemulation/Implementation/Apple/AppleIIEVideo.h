@@ -1,11 +1,12 @@
 
 /**
  * libemulator
- * Apple II Video
- * (C) 2010-2012 by Marc S. Ressl (mressl@umich.edu)
+ * Apple IIe Video
+ * (C) 2017 by Zellyn Hunter (zellyn@gmail.com)
+ * Original code (C) 2010-2012 by Marc S. Ressl (mressl@umich.edu)
  * Released under the GPL
  *
- * Generates Apple II video
+ * Generates Apple IIe video
  */
 
 #include "OEComponent.h"
@@ -13,10 +14,10 @@
 
 #include "ControlBusInterface.h"
 
-class AppleIIVideo : public OEComponent
+class AppleIIEVideo : public OEComponent
 {
 public:
-    AppleIIVideo();
+    AppleIIEVideo();
     
 	bool setValue(string name, string value);
 	bool getValue(string name, string& value);
@@ -86,7 +87,7 @@ private:
     OEInt imageWidth;
     bool imageModified;
     
-    void (AppleIIVideo::*draw)(OESInt y, OESInt x0, OESInt x1);
+    void (AppleIIEVideo::*draw)(OESInt y, OESInt x0, OESInt x1);
     OEChar *drawMemory1;
     OEChar *drawMemory2;
     OEChar *drawFont;
@@ -141,4 +142,10 @@ private:
     OEChar readFloatingBus();
     
     void copy(wstring *s);
+    
+    // Adding IIe 80col support
+    bool altchrset;
+    bool _80store;
+    
+    void set80store(bool new80store);
 };

@@ -1,16 +1,17 @@
 
 /**
  * libemulator
- * Apple II Video
- * (C) 2010-2012 by Marc S. Ressl (mressl@umich.edu)
+ * Apple IIe Video
+ * (C) 2017 by Zellyn Hunter (zellyn@gmail.com)
+ * Original code (C) 2010-2012 by Marc S. Ressl (mressl@umich.edu)
  * Released under the GPL
  *
- * Generates Apple II video
+ * Generates Apple IIe video
  */
 
 #include <math.h>
 
-#include "AppleIIVideo.h"
+#include "AppleIIEVideo.h"
 
 #include "DeviceInterface.h"
 #include "MemoryInterface.h"
@@ -25,6 +26,7 @@
 #define MODE_MIXED      (1 << 1)
 #define MODE_PAGE2      (1 << 2)
 #define MODE_HIRES      (1 << 3)
+#define MODE_80COL      (1 << 4)
 
 #define CHAR_NUM        0x100
 #define CHAR_WIDTH      16
@@ -62,7 +64,7 @@ enum
     VIDEO_PAL,
 };
 
-AppleIIVideo::AppleIIVideo()
+AppleIIEVideo::AppleIIEVideo()
 {
     controlBus = NULL;
     gamePort = NULL;
@@ -122,9 +124,12 @@ AppleIIVideo::AppleIIVideo()
     an2 = false;
     monitorConnected = false;
     videoInhibitCount = 0;
+    
+    altchrset = false;
+    _80store = false;
 }
 
-bool AppleIIVideo::setValue(string name, string value)
+bool AppleIIEVideo::setValue(string name, string value)
 {
 	if (name == "model")
     {
@@ -160,8 +165,14 @@ bool AppleIIVideo::setValue(string name, string value)
         OESetBit(mode, MODE_MIXED, getOEInt(value));
 	else if (name == "page2")
         OESetBit(mode, MODE_PAGE2, getOEInt(value));
-	else if (name == "hires")
+    else if (name == "hires")
         OESetBit(mode, MODE_HIRES, getOEInt(value));
+    else if (name == "80col")
+        OESetBit(mode, MODE_80COL, getOEInt(value));
+    else if (name == "altchrset")
+        altchrset = getOEInt(value);
+    else if (name == "80store")
+        _80store = getOEInt(value);
 	else if (name == "vram0000Offset")
         vram0000Offset = getOEInt(value);
 	else if (name == "vram1000Offset")
@@ -176,7 +187,7 @@ bool AppleIIVideo::setValue(string name, string value)
 	return true;
 }
 
-bool AppleIIVideo::getValue(string name, string& value)
+bool AppleIIEVideo::getValue(string name, string& value)
 {
     if (name == "revision")
         value = getString(revision);
@@ -205,15 +216,28 @@ bool AppleIIVideo::getValue(string name, string& value)
 		value = getString(OEGetBit(mode, MODE_MIXED));
 	else if (name == "page2")
 		value = getString(OEGetBit(mode, MODE_PAGE2));
-	else if (name == "hires")
-		value = getString(OEGetBit(mode, MODE_HIRES));
+    else if (name == "hires")
+        value = getString(OEGetBit(mode, MODE_HIRES));
+    else if (name == "80col")
+        value = getString(OEGetBit(mode, MODE_80COL));
+    else if (name == "altchrset")
+        value = getString(altchrset);
+    else if (name == "80store")
+        value = getString(_80store);
+    else if (name == "model")
+        switch (model) {
+            case MODEL_II: value = "II"; break;
+            case MODEL_IIJPLUS: value = "II j-plus"; break;
+            case MODEL_IIE: value = "IIe"; break;
+            default: value = "";
+        }
 	else
 		return false;
-	
+
 	return true;
 }
 
-bool AppleIIVideo::setRef(string name, OEComponent *ref)
+bool AppleIIEVideo::setRef(string name, OEComponent *ref)
 {
     if (name == "controlBus")
     {
@@ -268,7 +292,7 @@ bool AppleIIVideo::setRef(string name, OEComponent *ref)
 	return true;
 }
 
-bool AppleIIVideo::setData(string name, OEData *data)
+bool AppleIIEVideo::setData(string name, OEData *data)
 {
     if (name.substr(0, 4) == "font")
         loadTextFont(name.substr(4), data);
@@ -278,7 +302,7 @@ bool AppleIIVideo::setData(string name, OEData *data)
     return true;
 }
 
-bool AppleIIVideo::init()
+bool AppleIIEVideo::init()
 {
     OECheckComponent(controlBus);
     
@@ -324,7 +348,7 @@ bool AppleIIVideo::init()
     return true;
 }
 
-void AppleIIVideo::update()
+void AppleIIEVideo::update()
 {
     if (revisionUpdated)
     {
@@ -351,7 +375,7 @@ void AppleIIVideo::update()
     updateVideoEnabled();
 }
 
-bool AppleIIVideo::postMessage(OEComponent *sender, int message, void *data)
+bool AppleIIEVideo::postMessage(OEComponent *sender, int message, void *data)
 {
     switch (message)
     {
@@ -412,7 +436,12 @@ bool AppleIIVideo::postMessage(OEComponent *sender, int message, void *data)
             *((bool *) data) = monitorConnected;
             
             break;
+        
+        case APPLEII_80STORE_DID_CHANGE:
+            set80store(*((bool *)data));
             
+            return true;
+
         default:
             if (monitor)
                 return monitor->postMessage(sender, message, data);
@@ -423,7 +452,7 @@ bool AppleIIVideo::postMessage(OEComponent *sender, int message, void *data)
     return false;
 }
 
-void AppleIIVideo::notify(OEComponent *sender, int notification, void *data)
+void AppleIIEVideo::notify(OEComponent *sender, int notification, void *data)
 {
     if (sender == controlBus)
     {
@@ -480,15 +509,22 @@ void AppleIIVideo::notify(OEComponent *sender, int notification, void *data)
         refreshVideo();
 }
 
-OEChar AppleIIVideo::read(OEAddress address)
+OEChar AppleIIEVideo::read(OEAddress address)
 {
     write(address, 0);
     
 	return readFloatingBus();
 }
 
-void AppleIIVideo::write(OEAddress address, OEChar value)
+void AppleIIEVideo::write(OEAddress address, OEChar value)
 {
+    // Apple IIe softswitches.
+    switch (address) {
+        case 0xC00C: case 0xC00D: setMode(MODE_80COL, address & 0x1); return;
+        case 0xC00E: case 0xC00F: altchrset = address & 0x1; return;
+    }
+    
+    OEInt oldMode = mode;
     switch (address & 0x7f)
     {
         case 0x50: case 0x51:
@@ -503,17 +539,25 @@ void AppleIIVideo::write(OEAddress address, OEChar value)
             
         case 0x54: case 0x55:
             setMode(MODE_PAGE2, address & 0x1);
+            if (oldMode != mode) {
+                bool page2 = OEGetBit(mode, MODE_PAGE2);
+                postNotification(this, APPLEII_PAGE2_DID_CHANGE, &page2);
+            }
             
             break;
             
         case 0x56: case 0x57:
             setMode(MODE_HIRES, address & 0x1);
+            if (oldMode != mode) {
+                bool hires = OEGetBit(mode, MODE_HIRES);
+                postNotification(this, APPLEII_HIRES_DID_CHANGE, &hires);
+            }
             
             break;
     }
 }
 
-void AppleIIVideo::initOffsets()
+void AppleIIEVideo::initOffsets()
 {
     textOffset.resize(BLOCK_HEIGHT * CELL_HEIGHT);
     
@@ -526,7 +570,7 @@ void AppleIIVideo::initOffsets()
         hiresOffset[y] = (y >> 6) * BLOCK_WIDTH + ((y >> 3) & 0x7) * 0x80 + (y & 0x7) * 0x400;
 }
 
-bool AppleIIVideo::loadTextFont(string name, OEData *data)
+bool AppleIIEVideo::loadTextFont(string name, OEData *data)
 {
     if (data->size() < (CHAR_NUM * CHAR_HEIGHT))
         return false;
@@ -578,7 +622,7 @@ bool AppleIIVideo::loadTextFont(string name, OEData *data)
     return true;
 }
 
-void AppleIIVideo::buildLoresFont()
+void AppleIIEVideo::buildLoresFont()
 {
     loresFont.resize(2 * FONT_SIZE);
     
@@ -601,7 +645,7 @@ void AppleIIVideo::buildLoresFont()
     }
 }
 
-void AppleIIVideo::buildHires40Font()
+void AppleIIEVideo::buildHires40Font()
 {
     bool delayEnabled = (((model == MODEL_II) && (revision != 0)) ||
                          (model == MODEL_IIJPLUS) ||
@@ -623,7 +667,7 @@ void AppleIIVideo::buildHires40Font()
     }
 }
 
-void AppleIIVideo::buildHires80Font()
+void AppleIIEVideo::buildHires80Font()
 {
     hires80Font.resize(CHAR_NUM * CHAR_WIDTH);
     
@@ -640,7 +684,7 @@ void AppleIIVideo::buildHires80Font()
     }
 }
 
-void AppleIIVideo::setMode(OEInt mask, bool value)
+void AppleIIEVideo::setMode(OEInt mask, bool value)
 {
     OEInt newMode = mode;
     OESetBit(newMode, mask, value);
@@ -655,18 +699,18 @@ void AppleIIVideo::setMode(OEInt mask, bool value)
     }
 }
 
-void AppleIIVideo::configureDraw()
+void AppleIIEVideo::configureDraw()
 {
     bool newColorKiller;
     
-    bool page = OEGetBit(mode, MODE_PAGE2);
+    bool page = OEGetBit(mode, MODE_PAGE2) && !_80store;
     
     newColorKiller = (revision != 0) && OEGetBit(mode, MODE_TEXT);
     
     if (OEGetBit(mode, MODE_TEXT) ||
         ((currentTimer == TIMER_DISPLAYEND) && OEGetBit(mode, MODE_MIXED)))
     {
-        draw = &AppleIIVideo::drawText40Line;
+        draw = &AppleIIEVideo::drawText40Line;
         drawMemory1 = textMemory[page];
         drawFont = (OEChar *)&text40Font[characterSet].front();
         
@@ -674,13 +718,13 @@ void AppleIIVideo::configureDraw()
     }
     else if (!OEGetBit(mode, MODE_HIRES))
     {
-        draw = &AppleIIVideo::drawLores40Line;
+        draw = &AppleIIEVideo::drawLores40Line;
         drawMemory1 = textMemory[page];
         drawFont = (OEChar *)&loresFont.front();
     }
     else
     {
-        draw = &AppleIIVideo::drawHires40Line;
+        draw = &AppleIIEVideo::drawHires40Line;
         drawMemory1 = hiresMemory[page];
         drawFont = (OEChar *)&hires40Font.front();
     }
@@ -707,7 +751,7 @@ void AppleIIVideo::configureDraw()
 *((OEInt *)(d + 8)) = *((OEInt *)(s + 8));\
 *((OEShort *)(d + 12)) = *((OEShort *)(s + 12));
 
-void AppleIIVideo::drawText40Line(OESInt y, OESInt x0, OESInt x1)
+void AppleIIEVideo::drawText40Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = textOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
@@ -721,7 +765,7 @@ void AppleIIVideo::drawText40Line(OESInt y, OESInt x0, OESInt x1)
     }
 }
 
-void AppleIIVideo::drawText80Line(OESInt y, OESInt x0, OESInt x1)
+void AppleIIEVideo::drawText80Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = textOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
@@ -742,7 +786,7 @@ void AppleIIVideo::drawText80Line(OESInt y, OESInt x0, OESInt x1)
     }
 }
 
-void AppleIIVideo::drawLores40Line(OESInt y, OESInt x0, OESInt x1)
+void AppleIIEVideo::drawLores40Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = textOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
@@ -757,7 +801,7 @@ void AppleIIVideo::drawLores40Line(OESInt y, OESInt x0, OESInt x1)
     }
 }
 
-void AppleIIVideo::drawHires40Line(OESInt y, OESInt x0, OESInt x1)
+void AppleIIEVideo::drawHires40Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = hiresOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
@@ -774,7 +818,7 @@ void AppleIIVideo::drawHires40Line(OESInt y, OESInt x0, OESInt x1)
     }
 }
 
-void AppleIIVideo::drawHires80Line(OESInt y, OESInt x0, OESInt x1)
+void AppleIIEVideo::drawHires80Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = hiresOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
@@ -795,7 +839,7 @@ void AppleIIVideo::drawHires80Line(OESInt y, OESInt x0, OESInt x1)
 
 // To-Do: Implement Apple IIe delay
 
-void AppleIIVideo::updateVideoEnabled()
+void AppleIIEVideo::updateVideoEnabled()
 {
     bool newVideoEnabled = (monitor &&
                             !videoInhibitCount &&
@@ -819,14 +863,14 @@ void AppleIIVideo::updateVideoEnabled()
     }
 }
 
-void AppleIIVideo::refreshVideo()
+void AppleIIEVideo::refreshVideo()
 {
     updateVideo();
     
     pendingCycles = frameCycleNum;
 }
 
-void AppleIIVideo::updateVideo()
+void AppleIIEVideo::updateVideo()
 {
     OELong cycles;
     
@@ -866,7 +910,7 @@ void AppleIIVideo::updateVideo()
     lastCycles = cycles;
 }
 
-void AppleIIVideo::updateTiming()
+void AppleIIEVideo::updateTiming()
 {
     // Update timing and rects
     float clockFrequency;
@@ -957,7 +1001,7 @@ void AppleIIVideo::updateTiming()
     scheduleNextTimer(0);
 }
 
-void AppleIIVideo::scheduleNextTimer(OESLong cycles)
+void AppleIIEVideo::scheduleNextTimer(OESLong cycles)
 {
     updateVideo();
     
@@ -1026,7 +1070,7 @@ void AppleIIVideo::scheduleNextTimer(OESLong cycles)
     controlBus->postMessage(this, CONTROLBUS_SCHEDULE_TIMER, &timer);
 }
 
-OEIntPoint AppleIIVideo::getCount()
+OEIntPoint AppleIIEVideo::getCount()
 {
     OELong cycles;
     
@@ -1035,7 +1079,7 @@ OEIntPoint AppleIIVideo::getCount()
     return count[(size_t) (cycles - frameStart)];
 }
 
-OEChar AppleIIVideo::readFloatingBus()
+OEChar AppleIIEVideo::readFloatingBus()
 {
     OEIntPoint count = getCount();
     
@@ -1069,7 +1113,7 @@ OEChar AppleIIVideo::readFloatingBus()
     }
 }
 
-void AppleIIVideo::copy(wstring *s)
+void AppleIIEVideo::copy(wstring *s)
 {
     if (!videoEnabled || !OEGetBit(mode, MODE_TEXT))
         return;
@@ -1100,4 +1144,14 @@ void AppleIIVideo::copy(wstring *s)
         
         *s += line;
     }
+}
+
+void AppleIIEVideo::set80store(bool new80store)
+{
+    if (new80store == _80store)
+        return;
+
+    _80store = new80store;
+    refreshVideo();
+    configureDraw();
 }

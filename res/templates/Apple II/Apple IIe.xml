@@ -256,7 +256,7 @@
         <property name="floatingBus" ref="appleIIe.floatingBus"/>
         <property name="gamePort" ref="appleHandControllers.io"/>
     </component>
-    <component id="appleIIe.video" class="AppleIIVideo">
+    <component id="appleIIe.video" class="AppleIIEVideo">
         <property name="model" value="IIe"/>
         <property name="revision" value="1"/>
         <property name="tvSystem" value="NTSC"/>
@@ -268,6 +268,7 @@
         <property name="hires" value="0"/>
         <property name="controlBus" ref="appleIIe.controlBus"/>
         <property name="monitor" ref="appleMonitorII.monitor"/>
+        <property name="mmu" ref="appleIIe.mmu"/>
         <property name="vram0000" ref="appleIIe.mainRam"/>
         <property name="vram0000Offset" value="0x0000"/>
         <property name="vram1000" ref="appleIIe.mainRam"/>
