@@ -68,6 +68,7 @@ AppleIIEVideo::AppleIIEVideo()
 {
     controlBus = NULL;
     gamePort = NULL;
+    mmu = NULL;
     monitor = NULL;
     
     model = MODEL_II;
@@ -105,6 +106,8 @@ AppleIIEVideo::AppleIIEVideo()
     
     buildLoresFont();
     buildHires80Font();
+
+    buildVideoRomMaps();
     
     image.setSampleRate(NTSC_4FSC);
     image.setFormat(OEIMAGE_LUMINANCE);
@@ -261,6 +264,14 @@ bool AppleIIEVideo::setRef(string name, OEComponent *ref)
         if (gamePort)
             gamePort->addObserver(this, APPLEII_AN2_DID_CHANGE);
     }
+    else if (name == "mmu")
+    {
+        if (mmu)
+            mmu->removeObserver(this, APPLEII_80STORE_DID_CHANGE);
+        mmu = ref;
+        if (mmu)
+            mmu->addObserver(this, APPLEII_80STORE_DID_CHANGE);
+    }
 	else if (name == "monitor")
     {
         if (monitor)
@@ -296,6 +307,9 @@ bool AppleIIEVideo::setData(string name, OEData *data)
 {
     if (name.substr(0, 4) == "font")
         loadTextFont(name.substr(4), data);
+    else if (name.substr(0, 9) == "character") {
+        characterRoms[name.substr(9)] = *data;
+    }
     else
         return false;
     
@@ -437,11 +451,6 @@ bool AppleIIEVideo::postMessage(OEComponent *sender, int message, void *data)
             
             break;
         
-        case APPLEII_80STORE_DID_CHANGE:
-            set80store(*((bool *)data));
-            
-            return true;
-
         default:
             if (monitor)
                 return monitor->postMessage(sender, message, data);
@@ -501,6 +510,14 @@ void AppleIIEVideo::notify(OEComponent *sender, int notification, void *data)
                 
                 copy((wstring *)data);
                 
+                break;
+        }
+    }
+    else if (sender == mmu) {
+        switch (notification)
+        {
+            case APPLEII_80STORE_DID_CHANGE:
+                set80store(*((bool *) data));
                 break;
         }
     }
@@ -680,6 +697,55 @@ void AppleIIEVideo::buildHires80Font()
             bool bit = (value >> x) & 0x1;
             
             hires80Font[i * CHAR_WIDTH + x] = bit ? 0xff : 0x00;
+        }
+    }
+}
+
+// videoRomMaps are four maps from the outputs of video ROM to actual dots to copy.
+// There are four versions:
+// - fast: just inverted and repeated: lores40, text80, lores80, hires80
+// - slow, undelayed: inverted and widened: text40, weird lores40, hires40 (undelayed)
+// - slow, delayed, previous was low: hires40 (delayed)
+// - slow, delayed, previous was high: hires40 (delayed)
+void AppleIIEVideo::buildVideoRomMaps()
+{
+    videoRomMaps.resize(CHAR_NUM * CHAR_WIDTH * 4);
+    
+    // Fast: just inverted and repeated.
+    for (OEInt i = 0; i < CHAR_NUM; i++) {
+        for (OEInt x = 0; x < CHAR_WIDTH; x++)
+        {
+            bool bit = (i >> (x&7)) & 0x1;
+            videoRomMaps[i * CHAR_WIDTH + x] = bit ? 0x00 : 0xff;
+        }
+    }
+
+    // Slow, undelayed: just widened.
+    for (OEInt i = CHAR_NUM; i < CHAR_NUM * 2; i++) {
+        for (OEInt x = 0; x < CHAR_WIDTH; x++)
+        {
+            bool bit = (i >> (x>>1)) & 0x1;
+            videoRomMaps[i * CHAR_WIDTH + x] = bit ? 0x00 : 0xff;
+        }
+    }
+
+    // Slow, delayed, previous low.
+    for (OEInt i = CHAR_NUM * 2; i < CHAR_NUM * 3; i++) {
+        for (OEInt x = 0; x < CHAR_WIDTH; x++)
+        {
+            OEChar value = (i & 0x7f) << 1;
+            bool bit = (value >> ((x + 1) >> 1)) & 0x1;
+            videoRomMaps[i * CHAR_WIDTH + x] = bit ? 0x00 : 0xff;
+        }
+    }
+
+    // Slow, delayed, previous high.
+    for (OEInt i = CHAR_NUM * 3; i < CHAR_NUM * 4; i++) {
+        for (OEInt x = 0; x < CHAR_WIDTH; x++)
+        {
+            OEChar value = (i & 0x7f) << 1 | 1;
+            bool bit = (value >> ((x + 1) >> 1)) & 0x1;
+            videoRomMaps[i * CHAR_WIDTH + x] = bit ? 0x00 : 0xff;
         }
     }
 }

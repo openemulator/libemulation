@@ -36,7 +36,8 @@ public:
 private:
     OEComponent *controlBus;
     OEComponent *gamePort;
-	OEComponent *monitor;
+    OEComponent *mmu;
+    OEComponent *monitor;
     
     // Settings
     OEInt model;
@@ -82,6 +83,9 @@ private:
     OEData hires40Font;
     OEData hires80Font;
     
+    map<string, OEData> characterRoms;
+    OEData videoRomMaps;
+    
     OEImage image;
     OEChar *imagep;
     OEInt imageWidth;
@@ -119,6 +123,8 @@ private:
     void buildHires40Font();
     void buildHires80Font();
     
+    void buildVideoRomMaps();
+    
     void initVideoRAM(OEComponent *ram, OEAddress &start);
     void updateImage();
     void updateClockFrequency();
@@ -146,6 +152,6 @@ private:
     // Adding IIe 80col support
     bool altchrset;
     bool _80store;
-    
+
     void set80store(bool new80store);
 };
