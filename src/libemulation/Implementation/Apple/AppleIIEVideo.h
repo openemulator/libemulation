@@ -44,11 +44,13 @@ private:
     OEInt revision;
     OEInt videoSystem;
 	string characterSet;
+    string characterRom;
     OEInt flashFrameNum;
     OEInt mode;
     
     bool revisionUpdated;
     bool videoSystemUpdated;
+    bool characterRomUpdated;
     
     // Tables
     vector<OEIntPoint> pos;
@@ -66,12 +68,24 @@ private:
     OEAddress vram2000Offset;
     OEComponent *vram4000;
     OEAddress vram4000Offset;
-    
+
+    OEComponent *vram0000Aux;
+    OEAddress vram0000OffsetAux;
+    OEComponent *vram1000Aux;
+    OEAddress vram1000OffsetAux;
+    OEComponent *vram2000Aux;
+    OEAddress vram2000OffsetAux;
+    OEComponent *vram4000Aux;
+    OEAddress vram4000OffsetAux;
+
     OEData dummyMemory;
     
     OEChar *textMemory[2];
     OEChar *hblMemory[2];
     OEChar *hiresMemory[2];
+    OEChar *textMemoryAux[2];
+    OEChar *hblMemoryAux[2];
+    OEChar *hiresMemoryAux[2];
     
     // Drawing
     bool videoEnabled;
@@ -84,6 +98,7 @@ private:
     OEData hires80Font;
     
     map<string, OEData> characterRoms;
+    OEData currentCharacterRom;
     OEData videoRomMaps;
     
     OEImage image;
@@ -138,6 +153,8 @@ private:
     void drawLores40Line(OESInt y, OESInt x0, OESInt x1);
     void drawHires40Line(OESInt y, OESInt x0, OESInt x1);
     void drawHires80Line(OESInt y, OESInt x0, OESInt x1);
+    void newDrawText40Line(OESInt y, OESInt x0, OESInt x1);
+    void newDrawText80Line(OESInt y, OESInt x0, OESInt x1);
     void updateVideoEnabled();
     void refreshVideo();
     void updateVideo();
@@ -154,4 +171,8 @@ private:
     bool _80store;
 
     void set80store(bool new80store);
+
+    OEChar *romMap;
+    
+    OEInt romMapOffset(OEChar value, OESInt y, bool graphics, bool hgr);
 };

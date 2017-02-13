@@ -75,6 +75,7 @@ AppleIIEVideo::AppleIIEVideo()
     revision = 0;
     videoSystem = VIDEO_NTSC;
     characterSet = "";
+    characterRom = "";
     flashFrameNum = 14;
     mode = 0;
     
@@ -82,7 +83,7 @@ AppleIIEVideo::AppleIIEVideo()
     videoSystemUpdated = true;
     
     initOffsets();
-    
+
     vram0000 = NULL;
     vram0000Offset = 0;
     vram1000 = NULL;
@@ -91,7 +92,16 @@ AppleIIEVideo::AppleIIEVideo()
     vram2000Offset = 0;
     vram4000 = NULL;
     vram4000Offset = 0;
-    
+
+    vram0000Aux = NULL;
+    vram0000OffsetAux = 0;
+    vram1000Aux = NULL;
+    vram1000OffsetAux = 0;
+    vram2000Aux = NULL;
+    vram2000OffsetAux = 0;
+    vram4000Aux = NULL;
+    vram4000OffsetAux = 0;
+
     dummyMemory.resize(0x2000);
     
     for (OEInt page = 0; page < 2; page++)
@@ -99,6 +109,9 @@ AppleIIEVideo::AppleIIEVideo()
         textMemory[page] = &dummyMemory.front();
         hblMemory[page] = &dummyMemory.front();
         hiresMemory[page] = &dummyMemory.front();
+        textMemoryAux[page] = &dummyMemory.front();
+        hblMemoryAux[page] = &dummyMemory.front();
+        hiresMemoryAux[page] = &dummyMemory.front();
     }
     
     videoEnabled = false;
@@ -158,8 +171,13 @@ bool AppleIIEVideo::setValue(string name, string value)
         
         videoSystemUpdated = true;
     }
-	else if (name == "characterSet")
-		characterSet = value;
+    else if (name == "characterSet")
+        characterSet = value;
+	else if (name == "characterRom")
+    {
+		characterRom = value;
+        characterRomUpdated = true;
+    }
 	else if (name == "flashFrameNum")
 		flashFrameNum = getOEInt(value);
 	else if (name == "text")
@@ -176,14 +194,22 @@ bool AppleIIEVideo::setValue(string name, string value)
         altchrset = getOEInt(value);
     else if (name == "80store")
         _80store = getOEInt(value);
-	else if (name == "vram0000Offset")
+    else if (name == "vram0000Offset")
         vram0000Offset = getOEInt(value);
-	else if (name == "vram1000Offset")
+    else if (name == "vram1000Offset")
         vram1000Offset = getOEInt(value);
-	else if (name == "vram2000Offset")
+    else if (name == "vram2000Offset")
         vram2000Offset = getOEInt(value);
-	else if (name == "vram4000Offset")
+    else if (name == "vram4000Offset")
         vram4000Offset = getOEInt(value);
+    else if (name == "vram0000OffsetAux")
+        vram0000OffsetAux = getOEInt(value);
+    else if (name == "vram1000OffsetAux")
+        vram1000OffsetAux = getOEInt(value);
+    else if (name == "vram2000OffsetAux")
+        vram2000OffsetAux = getOEInt(value);
+    else if (name == "vram4000OffsetAux")
+        vram4000OffsetAux = getOEInt(value);
     else
         return false;
 	
@@ -209,8 +235,10 @@ bool AppleIIEVideo::getValue(string name, string& value)
                 break;
         }
     }
-	else if (name == "characterSet")
-		value = characterSet;
+    else if (name == "characterSet")
+        value = characterSet;
+    else if (name == "characterRom")
+        value = characterRom;
 	else if (name == "flashFrameNum")
 		value = getString(flashFrameNum);
 	else if (name == "text")
@@ -289,14 +317,22 @@ bool AppleIIEVideo::setRef(string name, OEComponent *ref)
             monitor->postMessage(this, CANVAS_SET_CAPTUREMODE, &captureMode);
         }
     }
-	else if (name == "vram0000")
+    else if (name == "vram0000")
         vram0000 = ref;
-	else if (name == "vram1000")
+    else if (name == "vram1000")
         vram1000 = ref;
-	else if (name == "vram2000")
+    else if (name == "vram2000")
         vram2000 = ref;
-	else if (name == "vram4000")
+    else if (name == "vram4000")
         vram4000 = ref;
+    else if (name == "vram0000Aux")
+        vram0000Aux = ref;
+    else if (name == "vram1000Aux")
+        vram1000Aux = ref;
+    else if (name == "vram2000Aux")
+        vram2000Aux = ref;
+    else if (name == "vram4000Aux")
+        vram4000Aux = ref;
     else
 		return false;
 	
@@ -351,7 +387,37 @@ bool AppleIIEVideo::init()
         
         hiresMemory[1] = &data->front() + vram4000Offset;
     }
+
+    if (vram0000Aux)
+    {
+        vram0000Aux->postMessage(this, RAM_GET_DATA, &data);
+        
+        textMemoryAux[0] = &data->front() + vram0000OffsetAux + 0x400;
+        textMemoryAux[1] = &data->front() + vram0000OffsetAux + 0x800;
+    }
     
+    if (vram1000Aux)
+    {
+        vram1000Aux->postMessage(this, RAM_GET_DATA, &data);
+        
+        hblMemoryAux[0] = &data->front() + vram1000OffsetAux + 0x400;
+        hblMemoryAux[1] = &data->front() + vram1000OffsetAux + 0x800;
+    }
+    
+    if (vram2000Aux)
+    {
+        vram2000Aux->postMessage(this, RAM_GET_DATA, &data);
+        
+        hiresMemoryAux[0] = &data->front() + vram2000OffsetAux;
+    }
+    
+    if (vram4000Aux)
+    {
+        vram4000Aux->postMessage(this, RAM_GET_DATA, &data);
+        
+        hiresMemoryAux[1] = &data->front() + vram4000OffsetAux;
+    }
+
     controlBus->postMessage(this, CONTROLBUS_GET_POWERSTATE, &powerState);
     
     if (gamePort)
@@ -384,6 +450,11 @@ void AppleIIEVideo::update()
         monitorConnected = (monitor != NULL);
         
         postNotification(this, APPLEII_MONITOR_DID_CHANGE, &monitorConnected);
+    }
+    
+    if (characterRomUpdated)
+    {
+        currentCharacterRom = characterRoms[characterRom];
     }
     
     updateVideoEnabled();
@@ -716,6 +787,7 @@ void AppleIIEVideo::buildVideoRomMaps()
         for (OEInt x = 0; x < CHAR_WIDTH; x++)
         {
             bool bit = (i >> (x&7)) & 0x1;
+            if (x>=14) bit = true;
             videoRomMaps[i * CHAR_WIDTH + x] = bit ? 0x00 : 0xff;
         }
     }
@@ -725,6 +797,7 @@ void AppleIIEVideo::buildVideoRomMaps()
         for (OEInt x = 0; x < CHAR_WIDTH; x++)
         {
             bool bit = (i >> (x>>1)) & 0x1;
+            if (x>=14) bit = true;
             videoRomMaps[i * CHAR_WIDTH + x] = bit ? 0x00 : 0xff;
         }
     }
@@ -735,6 +808,7 @@ void AppleIIEVideo::buildVideoRomMaps()
         {
             OEChar value = (i & 0x7f) << 1;
             bool bit = (value >> ((x + 1) >> 1)) & 0x1;
+            if (x>=14) bit = true;
             videoRomMaps[i * CHAR_WIDTH + x] = bit ? 0x00 : 0xff;
         }
     }
@@ -745,6 +819,7 @@ void AppleIIEVideo::buildVideoRomMaps()
         {
             OEChar value = (i & 0x7f) << 1 | 1;
             bool bit = (value >> ((x + 1) >> 1)) & 0x1;
+            if (x>=14) bit = true;
             videoRomMaps[i * CHAR_WIDTH + x] = bit ? 0x00 : 0xff;
         }
     }
@@ -776,11 +851,18 @@ void AppleIIEVideo::configureDraw()
     if (OEGetBit(mode, MODE_TEXT) ||
         ((currentTimer == TIMER_DISPLAYEND) && OEGetBit(mode, MODE_MIXED)))
     {
-        draw = &AppleIIEVideo::drawText40Line;
         drawMemory1 = textMemory[page];
-        drawFont = (OEChar *)&text40Font[characterSet].front();
-        
-        drawFont += ((an2 << 1) | flash) * FONT_SIZE;
+        drawMemory2 = textMemoryAux[page];
+        if (OEGetBit(mode, MODE_80COL))
+        {
+            romMap = ((OEChar *)&videoRomMaps.front()); // undelayed high-speed
+            draw = &AppleIIEVideo::newDrawText80Line;
+        }
+        else
+        {
+            romMap = ((OEChar *)&videoRomMaps.front()) + CHAR_NUM * CHAR_WIDTH; // undelayed half-speed
+            draw = &AppleIIEVideo::newDrawText40Line;
+        }
     }
     else if (!OEGetBit(mode, MODE_HIRES))
     {
@@ -811,11 +893,62 @@ void AppleIIEVideo::configureDraw()
 *((OEInt *)(d + 8)) = *((OEInt *)(s + 8));\
 *((OEShort *)(d + 12)) = *((OEShort *)(s + 12));
 
-// Copy an 8-pixel segment
+// Copy a 7-pixel segment
 #define copy80Segment(d,s) \
-*((OELong *)(d + 0)) = *((OELong *)(s + 0));\
-*((OEInt *)(d + 8)) = *((OEInt *)(s + 8));\
-*((OEShort *)(d + 12)) = *((OEShort *)(s + 12));
+*((OEInt *)(d + 0)) = *((OEInt *)(s + 0));\
+*((OEShort *)(d + 4)) = *((OEShort *)(s + 4));\
+*((OEChar *)(d + 6)) = *((OEChar *)(s + 6));\
+
+
+// Given a memory value, and whether it's
+OEInt AppleIIEVideo::romMapOffset(OEChar value, OESInt y, bool graphics, bool hgr)
+{
+    if (!graphics) {
+        OEInt result = (OEInt)value << 3 | (OEInt)(y&7);
+        if (!altchrset) {
+            result = result&0x1ff;
+            OESetBit(result, 0x200, (value&0xC0) == 0xC0); // RA9 = VID6 & VID7
+            OESetBit(result, 0x400, OEGetBit(value, 0x80) || (OEGetBit(value, 0x40) && flash)); // RA9 = VID7 or (VID6 & FLASH)
+        }
+        return result;
+    }
+    // TODO(zellyn): this is currently only correct if TEXT and ALTCHRSET are set.
+    return 0;
+}
+
+void AppleIIEVideo::newDrawText40Line(OESInt y, OESInt x0, OESInt x1)
+{
+    OEInt memoryOffset = textOffset[y];
+    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
+    
+    for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
+    {
+        OEChar value = drawMemory1[memoryOffset + x];
+        OEChar romValue = currentCharacterRom[romMapOffset(value, y, false, false)];
+        OEChar *m = romMap + CHAR_WIDTH * romValue;
+        
+        copy40Segment(p, m);
+    }
+}
+
+void AppleIIEVideo::newDrawText80Line(OESInt y, OESInt x0, OESInt x1)
+{
+    OEInt memoryOffset = textOffset[y];
+    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
+    
+    for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
+    {
+        OEChar value = drawMemory1[memoryOffset + x];
+        OEChar valueAux = drawMemory2[memoryOffset + x];
+        OEChar romValue = currentCharacterRom[romMapOffset(value, y, false, false)];
+        OEChar romValueAux = currentCharacterRom[romMapOffset(valueAux, y, false, false)];
+        OEChar *m = romMap + CHAR_WIDTH * romValue;
+        OEChar *mAux = romMap + CHAR_WIDTH * romValueAux;
+        
+        copy80Segment(p, mAux);
+        copy80Segment(p + (CELL_WIDTH/2), m);
+    }
+}
 
 void AppleIIEVideo::drawText40Line(OESInt y, OESInt x0, OESInt x1)
 {
