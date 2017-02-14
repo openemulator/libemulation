@@ -1284,7 +1284,7 @@ OEChar AppleIIEVideo::readFloatingBus()
     
 	bool mixed = OEGetBit(mode, MODE_MIXED) && ((count.y & 0xa0) == 0xa0);
 	bool hires = OEGetBit(mode, MODE_HIRES) && !(OEGetBit(mode, MODE_TEXT) || mixed);
-	bool page = OEGetBit(mode, MODE_PAGE2);
+	bool page = OEGetBit(mode, MODE_PAGE2) && !_80store;
 	
 	OEInt address = count.x & 0x7;
 	
@@ -1319,7 +1319,7 @@ void AppleIIEVideo::copy(wstring *s)
     
     OEChar charMap[] = {0x40, 0x20, 0x40, 0x20, 0x40, 0x20, 0x40, 0x60};
     
-    bool page = OEGetBit(mode, MODE_PAGE2);
+    bool page = OEGetBit(mode, MODE_PAGE2) && !_80store;
     
     OEChar *vp = textMemory[page];
     

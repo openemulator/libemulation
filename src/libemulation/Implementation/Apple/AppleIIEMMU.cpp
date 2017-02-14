@@ -331,7 +331,7 @@ void AppleIIEMMU::write(OEAddress address, OEChar value)
             case 0xC001: if (!_80store) {
                 _80store = true;
                 updateAuxmem();
-                video->postNotification(this, APPLEII_80STORE_DID_CHANGE, &_80store);
+                this->postNotification(this, APPLEII_80STORE_DID_CHANGE, &_80store);
             }; break;
             case 0xC002: if (ramrd) { ramrd = false; updateAuxmem(); }; break;
             case 0xC003: if (!ramrd) { ramrd = true; updateAuxmem(); }; break;
