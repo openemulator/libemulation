@@ -272,6 +272,7 @@
         <property name="page2" value="0"/>
         <property name="hires" value="0"/>
         <property name="controlBus" ref="appleIIe.controlBus"/>
+        <property name="gamePort" ref="appleIIe.gamePort"/>
         <property name="monitor" ref="appleMonitorII.monitor"/>
         <property name="mmu" ref="appleIIe.mmu"/>
         <property name="vram0000" ref="appleIIe.mainRam"/>

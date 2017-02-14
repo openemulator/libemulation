@@ -130,6 +130,7 @@ private:
     bool monitorConnected;
     OEInt videoInhibitCount;
     bool an2;
+    bool an3;
     
     void initOffsets();
     
@@ -155,6 +156,10 @@ private:
     void drawHires80Line(OESInt y, OESInt x0, OESInt x1);
     void newDrawText40Line(OESInt y, OESInt x0, OESInt x1);
     void newDrawText80Line(OESInt y, OESInt x0, OESInt x1);
+    void newDrawLores40Line(OESInt y, OESInt x0, OESInt x1);
+    void newDrawLores80Line(OESInt y, OESInt x0, OESInt x1);
+    void newDrawHires40Line(OESInt y, OESInt x0, OESInt x1);
+    void newDrawHires80Line(OESInt y, OESInt x0, OESInt x1);
     void updateVideoEnabled();
     void refreshVideo();
     void updateVideo();
@@ -174,5 +179,5 @@ private:
 
     OEChar *romMap;
     
-    OEInt romMapOffset(OEChar value, OESInt y, bool graphics, bool hgr);
+    OEInt romMapOffset(OEChar value, OESInt y, OESInt x, bool graphics, bool hgr);
 };
