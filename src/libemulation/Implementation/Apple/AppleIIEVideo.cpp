@@ -897,7 +897,7 @@ void AppleIIEVideo::configureDraw()
     {
         drawMemory1 = hiresMemory[page];
         drawMemory2 = hiresMemoryAux[page];
-        if (OEGetBit(mode, MODE_80COL) && an3) {
+        if (OEGetBit(mode, MODE_80COL) && !an3) {
             romMap = ((OEChar *)&videoRomMaps.front()); // undelayed high-speed
             draw = &AppleIIEVideo::newDrawHires80Line;
         } else {
@@ -928,6 +928,11 @@ void AppleIIEVideo::configureDraw()
 *((OEShort *)(d + 4)) = *((OEShort *)(s + 4));\
 *((OEChar *)(d + 6)) = *((OEChar *)(s + 6));\
 
+// Blank an 8-pixel segment
+#define blank80Segment(d) \
+*((OEInt*)(d + 0)) = 0;\
+*((OEInt*)(d + 3)) = 0;\
+
 
 // Given a memory value, and whether it's
 OEInt AppleIIEVideo::romMapOffset(OEChar value, OESInt y, OESInt x, bool graphics, bool hgr)
@@ -951,6 +956,9 @@ void AppleIIEVideo::newDrawText40Line(OESInt y, OESInt x0, OESInt x1)
     OEInt memoryOffset = textOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
     
+    if (x0==0) {
+        blank80Segment(p-7);
+    }
     for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
     {
         OEChar value = drawMemory1[memoryOffset + x];
@@ -964,7 +972,7 @@ void AppleIIEVideo::newDrawText40Line(OESInt y, OESInt x0, OESInt x1)
 void AppleIIEVideo::newDrawText80Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = textOffset[y];
-    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
+    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH - CELL_WIDTH/2;
     
     for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
     {
@@ -977,6 +985,9 @@ void AppleIIEVideo::newDrawText80Line(OESInt y, OESInt x0, OESInt x1)
         
         copy80Segment(p, mAux);
         copy80Segment(p + (CELL_WIDTH/2), m);
+        if (x==39) {
+            blank80Segment(p+CELL_WIDTH);
+        }
     }
 }
 
@@ -985,6 +996,9 @@ void AppleIIEVideo::newDrawLores40Line(OESInt y, OESInt x0, OESInt x1)
     OEInt memoryOffset = textOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
     
+    if (x0==0) {
+        blank80Segment(p-7);
+    }
     for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
     {
         OEChar value = drawMemory1[memoryOffset + x];
@@ -998,7 +1012,7 @@ void AppleIIEVideo::newDrawLores40Line(OESInt y, OESInt x0, OESInt x1)
 void AppleIIEVideo::newDrawLores80Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = textOffset[y];
-    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
+    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH - CELL_WIDTH/2;
     
     for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
     {
@@ -1011,6 +1025,9 @@ void AppleIIEVideo::newDrawLores80Line(OESInt y, OESInt x0, OESInt x1)
         
         copy80Segment(p, mAux);
         copy80Segment(p + (CELL_WIDTH/2), m);
+        if (x==39) {
+            blank80Segment(p+CELL_WIDTH);
+        }
     }
 }
 
@@ -1019,6 +1036,9 @@ void AppleIIEVideo::newDrawHires40Line(OESInt y, OESInt x0, OESInt x1)
     OEInt memoryOffset = hiresOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
     
+    if (x0==0) {
+        blank80Segment(p-7);
+    }
     for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
     {
         OEChar value = drawMemory1[memoryOffset + x];
@@ -1084,6 +1104,9 @@ void AppleIIEVideo::drawHires40Line(OESInt y, OESInt x0, OESInt x1)
     OEInt memoryOffset = hiresOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
     
+    if (x0==0) {
+        blank80Segment(p-7);
+    }
     for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
     {
         OEInt offset = memoryOffset + x;
@@ -1099,7 +1122,7 @@ void AppleIIEVideo::drawHires40Line(OESInt y, OESInt x0, OESInt x1)
 void AppleIIEVideo::newDrawHires80Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = hiresOffset[y];
-    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
+    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH - CELL_WIDTH/2;
     
     for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
     {
@@ -1112,6 +1135,9 @@ void AppleIIEVideo::newDrawHires80Line(OESInt y, OESInt x0, OESInt x1)
         
         copy80Segment(p, mAux);
         copy80Segment(p + (CELL_WIDTH/2), m);
+        if (x==39) {
+            blank80Segment(p+CELL_WIDTH);
+        }
     }
 }
 
