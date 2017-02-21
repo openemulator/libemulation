@@ -4,7 +4,6 @@
     
     <device id="appleIIe" label="Apple IIe" image="images/Apple/Apple IIe.png">
         <setting ref="appleIIe.audioOut" name="volume" label="Volume" type="slider" options="0,1"/>
-        <setting ref="appleIIe.video" name="characterSet" label="Character Set" type="select" options="Standard,Videx|Videx Lowercase Chip,Pigfont"/>
         <setting ref="appleIIe.video" name="characterRom" label="Character ROM" type="select" options="Unenhanced|Unenhanced - 342-0133-A,Enhanced|Enhanced - 342-0265-A"/>
         <setting ref="appleIIe.keyboard" name="type" label="Keyboard" type="select" options="Standard,Shift-Key Mod,Full ASCII"/>
         <setting ref="appleIIe.audioOut" name="cassetteOut" label="Cassette Output" type="checkbox"/>
@@ -264,7 +263,6 @@
         <property name="model" value="IIe"/>
         <property name="revision" value="1"/>
         <property name="tvSystem" value="NTSC"/>
-        <property name="characterSet" value="Standard"/>
         <property name="characterRom" value="Unenhanced"/>
         <property name="flashFrameNum" value="14"/>
         <property name="text" value="0"/>
@@ -291,9 +289,6 @@
         <property name="vram2000OffsetAux" value="0x2000"/>
         <property name="vram4000Aux" ref="appleIIe.auxRam"/>
         <property name="vram4000OffsetAux" value="0x4000"/>
-        <property name="fontStandard" data="${resourcePath}/roms/Apple/341-0036.bin"/>
-        <property name="fontVidex" data="${resourcePath}/roms/Videx/Videx Lower Case Chip ROM.bin"/>
-        <property name="fontPigfont" data="${resourcePath}/roms/Apple/Pigfont Video ROM.bin"/>
         <property name="characterUnenhanced" data="${resourcePath}/roms/Apple/342-0133-A.bin"/>
         <property name="characterEnhanced" data="${resourcePath}/roms/Apple/342-0265-A.bin"/>
     </component>

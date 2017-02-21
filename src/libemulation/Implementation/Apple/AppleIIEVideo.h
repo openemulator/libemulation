@@ -43,7 +43,6 @@ private:
     OEInt model;
     OEInt revision;
     OEInt videoSystem;
-	string characterSet;
     string characterRom;
     OEInt flashFrameNum;
     OEInt mode;
@@ -90,13 +89,7 @@ private:
     // Drawing
     bool videoEnabled;
     bool colorKiller;
-    
-    map<string, OEData> text40Font;
-    map<string, OEData> text80Font;
-    OEData loresFont;
-    OEData hires40Font;
-    OEData hires80Font;
-    
+
     map<string, OEData> characterRoms;
     OEData currentCharacterRom;
     OEData videoRomMaps;
@@ -109,7 +102,6 @@ private:
     void (AppleIIEVideo::*draw)(OESInt y, OESInt x0, OESInt x1);
     OEChar *drawMemory1;
     OEChar *drawMemory2;
-    OEChar *drawFont;
     
     // Timing
     OEInt vertTotal;
@@ -133,12 +125,7 @@ private:
     bool an3;
     
     void initOffsets();
-    
-    bool loadTextFont(string name, OEData *data);
-    void buildLoresFont();
-    void buildHires40Font();
-    void buildHires80Font();
-    
+
     void buildVideoRomMaps();
     
     void initVideoRAM(OEComponent *ram, OEAddress &start);
@@ -152,14 +139,9 @@ private:
     void drawText40Line(OESInt y, OESInt x0, OESInt x1);
     void drawText80Line(OESInt y, OESInt x0, OESInt x1);
     void drawLores40Line(OESInt y, OESInt x0, OESInt x1);
+    void drawLores80Line(OESInt y, OESInt x0, OESInt x1);
     void drawHires40Line(OESInt y, OESInt x0, OESInt x1);
     void drawHires80Line(OESInt y, OESInt x0, OESInt x1);
-    void newDrawText40Line(OESInt y, OESInt x0, OESInt x1);
-    void newDrawText80Line(OESInt y, OESInt x0, OESInt x1);
-    void newDrawLores40Line(OESInt y, OESInt x0, OESInt x1);
-    void newDrawLores80Line(OESInt y, OESInt x0, OESInt x1);
-    void newDrawHires40Line(OESInt y, OESInt x0, OESInt x1);
-    void newDrawHires80Line(OESInt y, OESInt x0, OESInt x1);
     void updateVideoEnabled();
     void refreshVideo();
     void updateVideo();

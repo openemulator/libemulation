@@ -74,7 +74,6 @@ AppleIIEVideo::AppleIIEVideo()
     model = MODEL_II;
     revision = 0;
     videoSystem = VIDEO_NTSC;
-    characterSet = "";
     characterRom = "";
     flashFrameNum = 14;
     mode = 0;
@@ -117,9 +116,6 @@ AppleIIEVideo::AppleIIEVideo()
     videoEnabled = false;
     colorKiller = true;
     
-    buildLoresFont();
-    buildHires80Font();
-
     buildVideoRomMaps();
     
     image.setSampleRate(NTSC_4FSC);
@@ -172,8 +168,6 @@ bool AppleIIEVideo::setValue(string name, string value)
         
         videoSystemUpdated = true;
     }
-    else if (name == "characterSet")
-        characterSet = value;
 	else if (name == "characterRom")
     {
 		characterRom = value;
@@ -236,8 +230,6 @@ bool AppleIIEVideo::getValue(string name, string& value)
                 break;
         }
     }
-    else if (name == "characterSet")
-        value = characterSet;
     else if (name == "characterRom")
         value = characterRom;
 	else if (name == "flashFrameNum")
@@ -346,9 +338,7 @@ bool AppleIIEVideo::setRef(string name, OEComponent *ref)
 
 bool AppleIIEVideo::setData(string name, OEData *data)
 {
-    if (name.substr(0, 4) == "font")
-        loadTextFont(name.substr(4), data);
-    else if (name.substr(0, 9) == "character") {
+    if (name.substr(0, 9) == "character") {
         characterRoms[name.substr(9)] = *data;
     }
     else
@@ -439,7 +429,6 @@ void AppleIIEVideo::update()
 {
     if (revisionUpdated)
     {
-        buildHires40Font();
         configureDraw();
         
         revisionUpdated = false;
@@ -669,120 +658,6 @@ void AppleIIEVideo::initOffsets()
         hiresOffset[y] = (y >> 6) * BLOCK_WIDTH + ((y >> 3) & 0x7) * 0x80 + (y & 0x7) * 0x400;
 }
 
-bool AppleIIEVideo::loadTextFont(string name, OEData *data)
-{
-    if (data->size() < (CHAR_NUM * CHAR_HEIGHT))
-        return false;
-    
-    OEData font40;
-    OEData font80;
-    font40.resize(4 * FONT_SIZE);
-    font80.resize(4 * FONT_SIZE);
-    
-    OEInt mask = (OEInt) getNextPowerOf2(data->size() / CHAR_HEIGHT) - 1;
-    for (OEInt i = 0; i < 4 * CHAR_NUM; i++)
-    {
-        for (OEInt y = 0; y < CHAR_HEIGHT; y++)
-        {
-            OEInt ir = i;
-            
-            if (model == MODEL_IIJPLUS)
-            {
-                OESetBit(ir, 0x40, OEGetBit(i, 0x80));
-                OESetBit(ir, 0x80, OEGetBit(i, 0x200));
-            }
-            
-            OEChar value = (*data)[(ir & mask) * CHAR_HEIGHT + y];
-            OESetBit(value, 0x80, (i & 0xc0) == 0x40);
-            
-            bool inv = !(OEGetBit(i, 0x80) || (OEGetBit(value, 0x80) && OEGetBit(i, 0x100)));
-            
-            for (OEInt x = 0; x < CHAR_WIDTH; x++)
-            {
-                bool bit = (value << (x >> 1)) & 0x40;
-                
-                font40[(i * CHAR_HEIGHT + y) *
-                       CHAR_WIDTH + x] = (bit ^ inv) ? 0xff : 0x00;
-            }
-            
-            for (OEInt x = 0; x < CHAR_WIDTH / 2; x++)
-            {
-                bool bit = (value << x) & 0x40;
-                
-                font80[(i * CHAR_HEIGHT + y) *
-                       CHAR_WIDTH + x] = (bit ^ inv) ? 0xff : 0x00;
-            }
-        }
-    }
-    
-    text40Font[name] = font40;
-    text80Font[name] = font80;
-    
-    return true;
-}
-
-void AppleIIEVideo::buildLoresFont()
-{
-    loresFont.resize(2 * FONT_SIZE);
-    
-    for (OEInt i = 0; i < 2 * CHAR_NUM; i++)
-    {
-        for (OEInt y = 0; y < CHAR_HEIGHT; y++)
-        {
-            OEInt value = (y < 4) ? i & 0xf : (i >> 4) & 0xf;
-            value = (value << 12) | (value << 8) | (value << 4) | value;
-            value >>= OEGetBit(i, 0x100) ? 2 : 0;
-            
-            for (OEInt x = 0; x < CHAR_WIDTH; x++)
-            {
-                loresFont[(i * CHAR_HEIGHT + y) *
-                          CHAR_WIDTH + x] = (value & 0x1) ? 0xff : 0x00;
-                
-                value >>= 1;
-            }
-        }
-    }
-}
-
-void AppleIIEVideo::buildHires40Font()
-{
-    bool delayEnabled = (((model == MODEL_II) && (revision != 0)) ||
-                         (model == MODEL_IIJPLUS) ||
-                         (model == MODEL_IIE));
-    
-    hires40Font.resize(2 * CHAR_NUM * CHAR_WIDTH);
-    
-    for (OEInt i = 0; i < 2 * CHAR_NUM; i++)
-    {
-        OEChar value = (i & 0x7f) << 1 | (i >> 8);
-        bool delay = delayEnabled && (i & 0x80);
-        
-        for (OEInt x = 0; x < CHAR_WIDTH; x++)
-        {
-            bool bit = (value >> ((x + 2 - delay) >> 1)) & 0x1;
-            
-            hires40Font[i * CHAR_WIDTH + x] = bit ? 0xff : 0x00;
-        }
-    }
-}
-
-void AppleIIEVideo::buildHires80Font()
-{
-    hires80Font.resize(CHAR_NUM * CHAR_WIDTH);
-    
-    for (OEInt i = 0; i < CHAR_NUM; i++)
-    {
-        OEChar value = i & 0x7f;
-        
-        for (OEInt x = 0; x < CHAR_WIDTH; x++)
-        {
-            bool bit = (value >> x) & 0x1;
-            
-            hires80Font[i * CHAR_WIDTH + x] = bit ? 0xff : 0x00;
-        }
-    }
-}
-
 // videoRomMaps are four maps from the outputs of video ROM to actual dots to copy.
 // There are four versions:
 // - fast: just inverted and repeated: lores40, text80, lores80, hires80
@@ -817,7 +692,7 @@ void AppleIIEVideo::buildVideoRomMaps()
     for (OEInt i = CHAR_NUM * 2; i < CHAR_NUM * 3; i++) {
         for (OEInt x = 0; x < CHAR_WIDTH; x++)
         {
-            OEChar value = (i & 0x7f) << 1;
+            OEChar value = (i & 0x7f) << 1 | 1;
             bool bit = (value >> ((x + 1) >> 1)) & 0x1;
             if (x>=14) bit = true;
             videoRomMaps[i * CHAR_WIDTH + x] = bit ? 0x00 : 0xff;
@@ -828,7 +703,7 @@ void AppleIIEVideo::buildVideoRomMaps()
     for (OEInt i = CHAR_NUM * 3; i < CHAR_NUM * 4; i++) {
         for (OEInt x = 0; x < CHAR_WIDTH; x++)
         {
-            OEChar value = (i & 0x7f) << 1 | 1;
+            OEChar value = (i & 0x7f) << 1;
             bool bit = (value >> ((x + 1) >> 1)) & 0x1;
             if (x>=14) bit = true;
             videoRomMaps[i * CHAR_WIDTH + x] = bit ? 0x00 : 0xff;
@@ -867,12 +742,12 @@ void AppleIIEVideo::configureDraw()
         if (OEGetBit(mode, MODE_80COL))
         {
             romMap = ((OEChar *)&videoRomMaps.front()); // undelayed high-speed
-            draw = &AppleIIEVideo::newDrawText80Line;
+            draw = &AppleIIEVideo::drawText80Line;
         }
         else
         {
             romMap = ((OEChar *)&videoRomMaps.front()) + CHAR_NUM * CHAR_WIDTH; // undelayed half-speed
-            draw = &AppleIIEVideo::newDrawText40Line;
+            draw = &AppleIIEVideo::drawText40Line;
         }
     }
     else if (!OEGetBit(mode, MODE_HIRES))
@@ -882,7 +757,7 @@ void AppleIIEVideo::configureDraw()
         if (OEGetBit(mode, MODE_80COL))
         {
             romMap = ((OEChar *)&videoRomMaps.front()); // undelayed high-speed
-            draw = &AppleIIEVideo::newDrawLores80Line;
+            draw = &AppleIIEVideo::drawLores80Line;
         }
         else
         {
@@ -890,7 +765,7 @@ void AppleIIEVideo::configureDraw()
                 romMap = ((OEChar *)&videoRomMaps.front()) + CHAR_NUM * CHAR_WIDTH; // undelayed half-speed
             else
                 romMap = ((OEChar *)&videoRomMaps.front()); // undelayed high-speed
-            draw = &AppleIIEVideo::newDrawLores40Line;
+            draw = &AppleIIEVideo::drawLores40Line;
         }
     }
     else
@@ -899,10 +774,10 @@ void AppleIIEVideo::configureDraw()
         drawMemory2 = hiresMemoryAux[page];
         if (OEGetBit(mode, MODE_80COL) && !an3) {
             romMap = ((OEChar *)&videoRomMaps.front()); // undelayed high-speed
-            draw = &AppleIIEVideo::newDrawHires80Line;
+            draw = &AppleIIEVideo::drawHires80Line;
         } else {
+            romMap = ((OEChar *)&videoRomMaps.front()) + CHAR_NUM * CHAR_WIDTH; // undelayed half-speed
             draw = &AppleIIEVideo::drawHires40Line;
-            drawFont = (OEChar *)&hires40Font.front();
         }
     }
     
@@ -951,7 +826,7 @@ OEInt AppleIIEVideo::romMapOffset(OEChar value, OESInt y, OESInt x, bool graphic
     return result;
 }
 
-void AppleIIEVideo::newDrawText40Line(OESInt y, OESInt x0, OESInt x1)
+void AppleIIEVideo::drawText40Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = textOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
@@ -969,7 +844,7 @@ void AppleIIEVideo::newDrawText40Line(OESInt y, OESInt x0, OESInt x1)
     }
 }
 
-void AppleIIEVideo::newDrawText80Line(OESInt y, OESInt x0, OESInt x1)
+void AppleIIEVideo::drawText80Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = textOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH - CELL_WIDTH/2;
@@ -991,7 +866,7 @@ void AppleIIEVideo::newDrawText80Line(OESInt y, OESInt x0, OESInt x1)
     }
 }
 
-void AppleIIEVideo::newDrawLores40Line(OESInt y, OESInt x0, OESInt x1)
+void AppleIIEVideo::drawLores40Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = textOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
@@ -1009,7 +884,7 @@ void AppleIIEVideo::newDrawLores40Line(OESInt y, OESInt x0, OESInt x1)
     }
 }
 
-void AppleIIEVideo::newDrawLores80Line(OESInt y, OESInt x0, OESInt x1)
+void AppleIIEVideo::drawLores80Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = textOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH - CELL_WIDTH/2;
@@ -1031,74 +906,6 @@ void AppleIIEVideo::newDrawLores80Line(OESInt y, OESInt x0, OESInt x1)
     }
 }
 
-void AppleIIEVideo::newDrawHires40Line(OESInt y, OESInt x0, OESInt x1)
-{
-    OEInt memoryOffset = hiresOffset[y];
-    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
-    
-    if (x0==0) {
-        blank80Segment(p-7);
-    }
-    for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
-    {
-        OEChar value = drawMemory1[memoryOffset + x];
-        OEChar romValue = currentCharacterRom[romMapOffset(value, y, x, true, false)];
-        OEChar *m = romMap + CHAR_WIDTH * romValue;
-        
-        copy40Segment(p, m);
-    }
-}
-
-void AppleIIEVideo::drawText40Line(OESInt y, OESInt x0, OESInt x1)
-{
-    OEInt memoryOffset = textOffset[y];
-    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
-    
-    for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
-    {
-        OEChar *m = (drawFont + (y & 0x7) * CHAR_WIDTH +
-                     drawMemory1[memoryOffset + x] * CHAR_SIZE);
-        
-        copy40Segment(p, m);
-    }
-}
-
-void AppleIIEVideo::drawText80Line(OESInt y, OESInt x0, OESInt x1)
-{
-    OEInt memoryOffset = textOffset[y];
-    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
-    
-    for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH / 2)
-    {
-        OEChar *m = (drawFont + (y & 0x7) * CHAR_WIDTH +
-                     drawMemory1[memoryOffset + x] * CHAR_SIZE);
-        
-        copy80Segment(p, m);
-        
-        p += CELL_WIDTH / 2;
-        
-        m = (drawFont + (y & 0x7) * CHAR_WIDTH +
-             drawMemory2[memoryOffset + x] * CHAR_SIZE);
-        
-        copy80Segment(p, m);
-    }
-}
-
-void AppleIIEVideo::drawLores40Line(OESInt y, OESInt x0, OESInt x1)
-{
-    OEInt memoryOffset = textOffset[y];
-    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
-    
-    for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
-    {
-        OEChar *m = (drawFont + (y & 0x7) * CHAR_WIDTH +
-                     drawMemory1[memoryOffset + x] * CHAR_SIZE +
-                     (x & 1) * FONT_SIZE);
-        
-        copy40Segment(p, m);
-    }
-}
-
 void AppleIIEVideo::drawHires40Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = hiresOffset[y];
@@ -1109,17 +916,28 @@ void AppleIIEVideo::drawHires40Line(OESInt y, OESInt x0, OESInt x1)
     }
     for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH)
     {
-        OEInt offset = memoryOffset + x;
-        OELong lastOffset = (offset & ~0x7f) | ((offset - 1) & 0x7f);
-        
-        OEInt i = drawMemory1[offset] | ((drawMemory1[lastOffset] & 0x40) << 2);
-        OEChar *m = drawFont + i * CHAR_WIDTH;
-        
+        OEChar value = drawMemory1[memoryOffset + x];
+        OEChar romValue = currentCharacterRom[romMapOffset(value, y, x, true, true)];
+        OEChar *m = romMap + CHAR_WIDTH * romValue;
+        if (OEGetBit(value, 0x80) && an3) {
+            // Add to offset to get to delayed, previous off.
+            m += CHAR_NUM * CHAR_WIDTH;
+            if (x > 0) { // Column zero is never previous-on.
+                OEInt offset = memoryOffset + x;
+                OELong lastOffset = (offset & ~0x7f) | ((offset - 1) & 0x7f);
+                OEChar lastValue = drawMemory1[lastOffset];
+                OEChar lastRomValue = currentCharacterRom[romMapOffset(lastValue, y, x-1, true, true)];
+                if (!OEGetBit(lastRomValue, 0x40)) {
+                    // Add to offset to get to delayed, previous on.
+                    m += CHAR_NUM * CHAR_WIDTH;
+                }
+            }
+        }
         copy40Segment(p, m);
     }
 }
 
-void AppleIIEVideo::newDrawHires80Line(OESInt y, OESInt x0, OESInt x1)
+void AppleIIEVideo::drawHires80Line(OESInt y, OESInt x0, OESInt x1)
 {
     OEInt memoryOffset = hiresOffset[y];
     OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH - CELL_WIDTH/2;
@@ -1138,25 +956,6 @@ void AppleIIEVideo::newDrawHires80Line(OESInt y, OESInt x0, OESInt x1)
         if (x==39) {
             blank80Segment(p+CELL_WIDTH);
         }
-    }
-}
-
-void AppleIIEVideo::drawHires80Line(OESInt y, OESInt x0, OESInt x1)
-{
-    OEInt memoryOffset = hiresOffset[y];
-    OEChar *p = imagep + y * imageWidth + x0 * CELL_WIDTH;
-    
-    for (OEInt x = x0; x < x1; x++, p += CELL_WIDTH / 2)
-    {
-        OEChar *m = drawFont + drawMemory1[memoryOffset + x] * CHAR_WIDTH;
-        
-        copy80Segment(p, m);
-        
-        p += CELL_WIDTH / 2;
-        
-        m = drawFont + drawMemory2[memoryOffset + x] * CHAR_WIDTH;
-        
-        copy80Segment(p, m);
     }
 }
 
