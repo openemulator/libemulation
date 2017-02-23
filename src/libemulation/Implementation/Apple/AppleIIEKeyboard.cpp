@@ -288,26 +288,18 @@ void AppleIIEKeyboard::write(OEAddress address, OEChar value)
 
 void AppleIIEKeyboard::updateKeyFlags()
 {
-    switch (0) // TODO: check command keys
-    {
-        case APPLEIIKEYBOARD_TYPE_SHIFTKEYMOD:
-        {
-            if (!monitor || !gamePort)
-                return;
-            
-            CanvasKeyboardFlags flags;
-            
-            monitor->postMessage(this, CANVAS_GET_KEYBOARD_FLAGS, &flags);
-            
-            bool shiftKeyUp = !OEGetBit(flags, CANVAS_KF_SHIFT);
-            
-            gamePort->postMessage(this, APPLEII_SET_PB2, &shiftKeyUp);
-            
-            break;
-        }
-        default:
-            break;
-    }
+    if (!monitor || !gamePort)
+        return;
+
+    CanvasKeyboardFlags flags;
+
+    monitor->postMessage(this, CANVAS_GET_KEYBOARD_FLAGS, &flags);
+
+    bool openApple = !OEGetBit(flags, CANVAS_KF_LEFTALT);
+    bool closedApple = !OEGetBit(flags, CANVAS_KF_RIGHTALT);
+
+    gamePort->postMessage(this, APPLEII_SET_PB0, &openApple);
+    gamePort->postMessage(this, APPLEII_SET_PB1, &closedApple);
 }
 
 void AppleIIEKeyboard::sendKey(CanvasUnicodeChar key)
@@ -316,6 +308,10 @@ void AppleIIEKeyboard::sendKey(CanvasUnicodeChar key)
         key = 0x8;
     else if (key == CANVAS_U_RIGHT)
         key = 0x15;
+    else if (key == CANVAS_U_UP)
+        key = 0x0b;
+    else if (key == CANVAS_U_DOWN)
+        key = 0x0a;
     else if (key >= 0x80)
         return;
     
