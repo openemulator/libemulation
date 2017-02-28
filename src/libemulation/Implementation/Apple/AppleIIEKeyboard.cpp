@@ -295,8 +295,8 @@ void AppleIIEKeyboard::updateKeyFlags()
 
     monitor->postMessage(this, CANVAS_GET_KEYBOARD_FLAGS, &flags);
 
-    bool openApple = !OEGetBit(flags, CANVAS_KF_LEFTALT);
-    bool closedApple = !OEGetBit(flags, CANVAS_KF_RIGHTALT);
+    bool openApple = OEGetBit(flags, CANVAS_KF_LEFTALT);
+    bool closedApple = OEGetBit(flags, CANVAS_KF_RIGHTALT);
 
     gamePort->postMessage(this, APPLEII_SET_PB0, &openApple);
     gamePort->postMessage(this, APPLEII_SET_PB1, &closedApple);

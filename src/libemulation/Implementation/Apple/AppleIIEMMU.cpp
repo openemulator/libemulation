@@ -107,10 +107,16 @@ bool AppleIIEMMU::setRef(string name, OEComponent *ref)
     if (name == "controlBus")
     {
         if (controlBus)
+        {
             controlBus->removeObserver(this, CONTROLBUS_POWERSTATE_DID_CHANGE);
+            controlBus->removeObserver(this, CONTROLBUS_RESET_DID_ASSERT);
+        }
         controlBus = ref;
         if (controlBus)
+        {
             controlBus->addObserver(this, CONTROLBUS_POWERSTATE_DID_CHANGE);
+            controlBus->addObserver(this, CONTROLBUS_RESET_DID_ASSERT);
+        }
     }
     else if (name == "bankSwitcher")
         bankSwitcher = ref;
@@ -186,10 +192,14 @@ bool AppleIIEMMU::init()
 void AppleIIEMMU::notify(OEComponent *sender, int notification, void *data)
 {
     if (sender == controlBus) {
-        // TODO(zellyn): handle resets too. This is just copied from AppleLanguageCard.cpp
-        ControlBusPowerState powerState = *((ControlBusPowerState *)data);
         
-        if (powerState == CONTROLBUS_POWERSTATE_OFF)
+        bool reset = (notification==CONTROLBUS_RESET_DID_ASSERT);
+        if (notification==CONTROLBUS_POWERSTATE_DID_CHANGE) {
+            ControlBusPowerState powerState = *((ControlBusPowerState *)data);
+            reset = reset || (powerState == CONTROLBUS_POWERSTATE_OFF);
+        }
+            
+        if (reset)
         {
             bank1 = false;
             hramRead = false;
@@ -203,9 +213,6 @@ void AppleIIEMMU::notify(OEComponent *sender, int notification, void *data)
             altzp = false;
             slotc3rom = false;
             intc8rom = false;
-            
-            hires = false;
-            page2 = false;
 
             updateBankSwitcher();
             updateBankOffset();

@@ -268,12 +268,14 @@ bool AppleIIEVideo::setRef(string name, OEComponent *ref)
         if (controlBus)
         {
             controlBus->removeObserver(this, CONTROLBUS_POWERSTATE_DID_CHANGE);
+            controlBus->removeObserver(this, CONTROLBUS_RESET_DID_ASSERT);
             controlBus->removeObserver(this, CONTROLBUS_TIMER_DID_FIRE);
         }
         controlBus = ref;
         if (controlBus)
         {
             controlBus->addObserver(this, CONTROLBUS_POWERSTATE_DID_CHANGE);
+            controlBus->addObserver(this, CONTROLBUS_RESET_DID_ASSERT);
             controlBus->addObserver(this, CONTROLBUS_TIMER_DID_FIRE);
         }
     }
@@ -548,6 +550,14 @@ void AppleIIEVideo::notify(OEComponent *sender, int notification, void *data)
                 updateVideoEnabled();
                 
                 break;
+
+            case CONTROLBUS_RESET_DID_ASSERT:
+                setMode(MODE_TEXT, false);
+                setMode(MODE_MIXED, false);
+                setMode(MODE_PAGE2, false);
+                setMode(MODE_HIRES, false);
+                
+                break;
                 
             case CONTROLBUS_TIMER_DID_FIRE:
                 scheduleNextTimer(*((OESLong *)data));
@@ -627,20 +637,11 @@ void AppleIIEVideo::write(OEAddress address, OEChar value)
             
         case 0x54: case 0x55:
             setMode(MODE_PAGE2, address & 0x1);
-            if (oldMode != mode) {
-                bool page2 = OEGetBit(mode, MODE_PAGE2);
-                postNotification(this, APPLEII_PAGE2_DID_CHANGE, &page2);
-            }
             
             break;
             
         case 0x56: case 0x57:
             setMode(MODE_HIRES, address & 0x1);
-            if (oldMode != mode) {
-                bool hires = OEGetBit(mode, MODE_HIRES);
-                postNotification(this, APPLEII_HIRES_DID_CHANGE, &hires);
-            }
-            
             break;
     }
 }
@@ -718,11 +719,21 @@ void AppleIIEVideo::setMode(OEInt mask, bool value)
     
     if (mode != newMode)
     {
+        OEInt oldMode = mode;
         mode = newMode;
         
         refreshVideo();
         
         configureDraw();
+
+        if (OEGetBit(mode, MODE_PAGE2) != OEGetBit(oldMode, MODE_PAGE2)) {
+            bool page2 = OEGetBit(mode, MODE_PAGE2);
+            postNotification(this, APPLEII_PAGE2_DID_CHANGE, &page2);
+        }
+        if (OEGetBit(mode, MODE_HIRES) != OEGetBit(oldMode, MODE_HIRES)) {
+            bool hires = OEGetBit(mode, MODE_HIRES);
+            postNotification(this, APPLEII_HIRES_DID_CHANGE, &hires);
+        }
     }
 }
 
