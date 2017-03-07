@@ -275,7 +275,7 @@ OEChar AppleIIEKeyboard::read(OEAddress address)
         
         emptyPasteBuffer();
         
-        return floatingBus->read(address);
+        return (anyKeyDown ? 0x80 : 0) | (keyLatch & 0x7f);
     }
     
     return (keyStrobe << 7) | (keyLatch & 0x7f);
@@ -300,6 +300,8 @@ void AppleIIEKeyboard::updateKeyFlags()
 
     gamePort->postMessage(this, APPLEII_SET_PB0, &openApple);
     gamePort->postMessage(this, APPLEII_SET_PB1, &closedApple);
+    
+    monitor->postMessage(this, CANVAS_GET_KEYBOARD_ANYKEYDOWN, &anyKeyDown);
 }
 
 void AppleIIEKeyboard::sendKey(CanvasUnicodeChar key)

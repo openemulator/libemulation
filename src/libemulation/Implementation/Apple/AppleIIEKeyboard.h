@@ -43,6 +43,7 @@ protected:
     
     OEChar keyLatch;
     bool keyStrobe;
+    bool anyKeyDown;
     
     virtual void updateKeyFlags();
     virtual void sendKey(CanvasUnicodeChar key);
