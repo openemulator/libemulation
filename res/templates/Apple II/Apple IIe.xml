@@ -14,6 +14,10 @@
     <port id="appleIIe.gamePort" ref="appleHandControllers.connector" type="Apple II Game Port" group="peripherals" label="Game Port" image="images/Connectors/DIP16.png">
         <inlet ref="appleIIe.gamePort" property="gamePort" outletRef="io"/>
     </port>
+    <port id="appleIIe.auxslot" ref="" type="Apple IIe Auxiliary Slot" group="expansions" label="Aux Slot" image="images/Connectors/Edge60.png">
+        <inlet ref="appleIIe.io" property="refAuxSlot" outletRef="io"/>
+        <inlet ref="appleIIe.memoryBus" property="refAuxSlot" outletRef="memory"/>
+    </port>
     <port id="appleIIe.slot1" ref="" type="Apple II Slot" group="expansions" label="Slot 1" image="images/Connectors/Edge50.png">
         <inlet ref="appleIIe.io" property="refSlot1" outletRef="io"/>
         <inlet ref="appleIIe.memoryBus" property="refSlot1" outletRef="memory"/>
