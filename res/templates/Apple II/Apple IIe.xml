@@ -220,6 +220,17 @@
         <property name="ramMapper" ref="appleIIe.ramMapper"/>
         <property name="romC0DF" ref="appleIIe.romC0DF"/>
         <property name="video" ref="appleIIe.video"/>
+        <property name="bank1" value="0"/>
+        <property name="hramRead" value="0"/>
+        <property name="preWrite" value="0"/>
+        <property name="hramWrite" value="0"/>
+        <property name="ramrd" value="0"/>
+        <property name="ramwrt" value="0"/>
+        <property name="80store" value="0"/>
+        <property name="intcxrom" value="0"/>
+        <property name="altzp" value="0"/>
+        <property name="slotc3rom" value="0"/>
+        <property name="intc8rom" value="0"/>
     </component>
     <component id="appleIIe.bankSwitcher" class="AddressOffset">
         <property name="memory" ref="appleIIe.ram"/>
@@ -271,6 +282,8 @@
         <property name="mixed" value="0"/>
         <property name="page2" value="0"/>
         <property name="hires" value="0"/>
+        <property name="80col" value="0"/>
+        <property name="altchrset" value="0"/>
         <property name="controlBus" ref="appleIIe.controlBus"/>
         <property name="gamePort" ref="appleIIe.gamePort"/>
         <property name="monitor" ref="appleMonitorII.monitor"/>
