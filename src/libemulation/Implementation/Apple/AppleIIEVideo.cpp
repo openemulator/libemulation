@@ -622,7 +622,6 @@ void AppleIIEVideo::write(OEAddress address, OEChar value)
         case 0xC00E: case 0xC00F: altchrset = address & 0x1; return;
     }
     
-    OEInt oldMode = mode;
     switch (address & 0x7f)
     {
         case 0x50: case 0x51:
@@ -767,8 +766,13 @@ void AppleIIEVideo::configureDraw()
         drawMemory2 = textMemoryAux[page];
         if (OEGetBit(mode, MODE_80COL))
         {
-            romMap = ((OEChar *)&videoRomMaps.front()); // undelayed high-speed
-            draw = &AppleIIEVideo::drawLores80Line;
+            if (an3) {
+                romMap = ((OEChar *)&videoRomMaps.front()); // undelayed high-speed
+                draw = &AppleIIEVideo::drawLores40Line;
+            } else {
+                romMap = ((OEChar *)&videoRomMaps.front()); // undelayed high-speed
+                draw = &AppleIIEVideo::drawLores80Line;
+            }
         }
         else
         {
