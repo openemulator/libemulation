@@ -276,7 +276,7 @@
         <property name="model" value="IIe"/>
         <property name="revision" value="1"/>
         <property name="tvSystem" value="NTSC"/>
-        <property name="characterRom" value="Unenhanced"/>
+        <property name="characterRom" value="Enhanced"/>
         <property name="flashFrameNum" value="14"/>
         <property name="text" value="0"/>
         <property name="mixed" value="0"/>
