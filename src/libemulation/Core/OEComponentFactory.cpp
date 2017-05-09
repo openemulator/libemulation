@@ -82,6 +82,8 @@
 
 #include "VidexVideoterm.h"
 
+#include "AERamFactor.h"
+
 #include "W65C02S.h"
 // FACTORY_INCLUDE_END - Do not modify this section
 
@@ -161,6 +163,8 @@ OEComponent *OEComponentFactory::construct(const string& className)
     matchComponent(RDCFFA);
     
     matchComponent(VidexVideoterm);
+
+    matchComponent(AERamFactor);
     
     matchComponent(W65C02S);
     // FACTORY_CODE_END - Do not modify this section

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE EDL PUBLIC "-//OPENEMULATOR//DTD EDL 1.0//EN" "http://www.openemulator.org/DTD/edl-1.0.dtd">
+<edl version="1.0" creator="OpenEmulator" framework="787" label="AE RamFactor" image="images/AE/AE RamFactor Rev A.jpg" description="Applied Engineering RamFactor Memory Expansion Card.">
+
+    <device id="aeRamFactor" label="AE RamFactor" image="images/AE/AE RamFactor Rev A.jpg">
+        <setting ref="aeRamFactor.rom" name="sel" label="Firmware" type="select" options="ROM10|ROM 1.0,ROM11|ROM 1.1,ROM13|ROM 1.3,ROM14|ROM 1.4"/>
+        <setting ref="aeRamFactor.ram" name="size" label="RAM" type="select" options="0x40000|256 kiB,0x80000|512 kiB,0x100000|1 miB,0x400000|4 miB,0x1000000|16 miB"/>
+    </device>
+    <connector id="aeRamFactor.connector" type="Apple II Slot">
+        <inlet ref="aeRamFactor.memory" property="memoryBus" outletRef="memoryBus"/>
+        <inlet ref="aeRamFactor.disableC800" property="memoryBus" outletRef="memoryBus"/>
+        <inlet ref="aeRamFactor.io" property="floatingBus" outletRef="floatingBus"/>
+        <inlet ref="aeRamFactor.io" property="controlBus" outletRef="controlBus"/>
+        <inlet ref="aeRamFactor.ram" property="controlBus" outletRef="controlBus"/>
+        <inlet ref="aeRamFactor.memoryC800" property="floatingBus" outletRef="floatingBus"/>
+    </connector>
+    <component id="aeRamFactor.io" class="AERamFactor">
+        <property name="ram" ref="aeRamFactor.ram"/>
+        <property name="bankSwitcher" ref="aeRamFactor.firmwareOffset"/>
+        <property name="controlBus" ref=""/>
+	<property name="floatingBus" ref=""/>
+    </component>
+    <component id="aeRamFactor.memory" class="AppleIISlotController">
+        <property name="memory" ref="aeRamFactor.firmwareOffset"/>
+        <property name="en" value="0"/>
+        <property name="memoryBus" ref=""/>
+        <property name="refC800" ref="aeRamFactor.memoryC800"/>
+        <property name="mapC800" value="0xc800-0xcfff"/>
+    </component>
+    <component id="aeRamFactor.memoryC800" class="AddressDecoder">
+        <property name="size" value="0x800"/>
+        <property name="blockSize" value="0x1"/>
+        <property name="floatingBus" ref=""/>
+        <property name="refFirmware" ref="aeRamFactor.firmwareOffset"/>
+        <property name="mapFirmware" value="0x000-0x07fe"/>
+        <property name="refDisableC800" ref="aeRamFactor.disableC800"/>
+        <property name="mapDisableC800" value="0x7ff"/>
+    </component>
+    <component id="aeRamFactor.ram" class="RAM">
+        <property name="size" value="0x1000000"/>
+        <property name="memoryImage" data="${packagePath}/${id}.bin"/>
+        <property name="powerOnPattern" value="0xff"/>
+        <property name="controlBus" ref=""/>
+    </component>
+    <component id="aeRamFactor.firmwareOffset" class="AddressOffset">
+        <property name="memory" ref="aeRamFactor.rom"/>
+        <property name="size" value="0x2000"/>
+        <property name="blockSize" value="0x1000"/>
+    </component>
+    <component id="aeRamFactor.rom" class="AddressMux">
+        <property name="refROM14" ref="aeRamFactor.rom14"/>
+        <property name="refROM13" ref="aeRamFactor.rom13"/>
+        <property name="refROM11" ref="aeRamFactor.rom11"/>
+        <property name="refROM10" ref="aeRamFactor.rom10"/>
+        <property name="sel" value="ROM14"/>
+    </component>
+    <component id="aeRamFactor.rom14" class="ROM">
+        <property name="memoryImage" data="${resourcePath}/roms/AE/ramfactor_rom_14.bin"/>
+    </component>
+    <component id="aeRamFactor.rom13" class="ROM">
+        <property name="memoryImage" data="${resourcePath}/roms/AE/ramfactor_rom_13.bin"/>
+    </component>
+    <component id="aeRamFactor.rom11" class="ROM">
+        <property name="memoryImage" data="${resourcePath}/roms/AE/ramfactor_rom_11.bin"/>
+    </component>
+    <component id="aeRamFactor.rom10" class="ROM">
+        <property name="memoryImage" data="${resourcePath}/roms/AE/ramfactor_rom_10.bin"/>
+    </component>
+    <component id="aeRamFactor.disableC800" class="AppleIIDisableC800">
+        <property name="memory" ref="aeRamFactor.memory"/>
+        <property name="memoryBus" ref=""/>
+    </component>
+
+</edl>
