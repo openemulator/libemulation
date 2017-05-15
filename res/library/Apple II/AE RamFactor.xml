@@ -4,7 +4,7 @@
 
     <device id="aeRamFactor" label="AE RamFactor" image="images/AE/AE RamFactor Rev A.jpg">
         <setting ref="aeRamFactor.rom" name="sel" label="Firmware" type="select" options="ROM10|ROM 1.0,ROM11|ROM 1.1,ROM13|ROM 1.3,ROM14|ROM 1.4"/>
-        <setting ref="aeRamFactor.ram" name="size" label="RAM" type="select" options="0x40000|256 kiB,0x80000|512 kiB,0x100000|1 miB,0x400000|4 miB,0x1000000|16 miB"/>
+        <setting ref="aeRamFactor.ram" name="size" label="RAM" type="select" options="0x40000|256 kiB,0x80000|512 kiB,0x100000|1 miB,0x400000|4 miB,0x800000|8 miB,0x1000000|16 miB"/>
     </device>
     <connector id="aeRamFactor.connector" type="Apple II Slot">
         <inlet ref="aeRamFactor.memory" property="memoryBus" outletRef="memoryBus"/>
@@ -37,7 +37,7 @@
         <property name="mapDisableC800" value="0x7ff"/>
     </component>
     <component id="aeRamFactor.ram" class="RAM">
-        <property name="size" value="0x1000000"/>
+        <property name="size" value="0x800000"/>
         <property name="memoryImage" data="${packagePath}/${id}.bin"/>
         <property name="powerOnPattern" value="0xff"/>
         <property name="controlBus" ref=""/>

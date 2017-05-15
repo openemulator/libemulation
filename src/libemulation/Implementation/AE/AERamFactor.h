@@ -34,6 +34,8 @@ public:
     void setFirmwareBank(OEChar value);
     void updateBankOffset();
     OEAddress incAddr();
+    void setAddressByte(int n, OEChar value);
+    OEChar getAddressByte(int n);
     
 private:
     OEComponent *controlBus;
@@ -43,5 +45,6 @@ private:
 
     OEAddress address;
     OEChar bank;
-    bool hiOrF;
+    size_t size;
+    OEAddress hiOr;
 };
