@@ -188,6 +188,12 @@ bool DIApple525DiskStorage::open(DIBackingStore *backingStore)
         
         return true;
     }
+    else if (wozDiskStorage.open(backingStore))
+    {
+        diskStorage = &wozDiskStorage;
+        
+        return true;
+    }
     else
     {
         if (!validateImageSize(backingStore, trackFormat, trackSize))

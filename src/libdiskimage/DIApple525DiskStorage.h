@@ -20,6 +20,7 @@
 #include "DIDDLDiskStorage.h"
 #include "DIFDIDiskStorage.h"
 #include "DIV2DDiskStorage.h"
+#include "DIWozDiskStorage.h"
 
 typedef struct 
 {
@@ -61,7 +62,8 @@ private:
     DIDDLDiskStorage ddlDiskStorage;
     DIFDIDiskStorage fdiDiskStorage;
     DIV2DDiskStorage v2dDiskStorage;
-    
+    DIWozDiskStorage wozDiskStorage;
+
     DIDiskStorage *diskStorage;
     
     bool forceWriteProtected;
