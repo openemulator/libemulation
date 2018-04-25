@@ -264,17 +264,20 @@ void MOS6502::execute()
         }
         else
         {
-/*            static bool cap = true;
+
+            static bool cap = false;
+            static unsigned long long limit = 0x4000;
+            static unsigned long long count = 0;
             
-            if ((pc.q & 0xffff) == 0x0801)
-                cap = true;
+            if ((pc.q & 0xffff) == 0xC10A)
+                 cap = true;
             
             if (cap)
             {
                 static FILE *fp = NULL;
                 
                 if (!fp)
-                    fp = fopen("/Users/mressl/cap.txt", "at");
+                    fp = fopen("/tmp/oe-cap.txt", "wt");
                 if (fp)
                 {
                     fprintf(fp, "pc=%04x a=%02x x=%02x y=%02x s=%02x p=%02x [%02x %02x %02x]\n",
@@ -283,7 +286,11 @@ void MOS6502::execute()
                             memoryBus->read(pc.q + 1),
                             memoryBus->read(pc.q + 2));
                 }
-            }*/
+                count++;
+                if (count==limit) {
+                  cap = false;
+                }
+            }
             
             OEChar opcode = RDOP();
             

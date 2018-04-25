@@ -44,6 +44,10 @@
 #include "AppleIIAudioIn.h"
 #include "AppleIIAudioOut.h"
 #include "AppleIIDisableC800.h"
+#include "AppleIIEAddressDecoder.h"
+#include "AppleIIEKeyboard.h"
+#include "AppleIIEMMU.h"
+#include "AppleIIEVideo.h"
 #include "AppleIIFloatingBus.h"
 #include "AppleIIGamePort.h"
 #include "AppleIIKeyboard.h"
@@ -77,6 +81,8 @@
 #include "SAMDACCard.h"
 
 #include "VidexVideoterm.h"
+
+#include "AERamFactor.h"
 
 #include "W65C02S.h"
 // FACTORY_INCLUDE_END - Do not modify this section
@@ -120,6 +126,10 @@ OEComponent *OEComponentFactory::construct(const string& className)
     matchComponent(AppleIIAudioIn);
     matchComponent(AppleIIAudioOut);
     matchComponent(AppleIIDisableC800);
+    matchComponent(AppleIIEAddressDecoder);
+    matchComponent(AppleIIEKeyboard);
+    matchComponent(AppleIIEMMU);
+    matchComponent(AppleIIEVideo);
     matchComponent(AppleIIFloatingBus);
     matchComponent(AppleIIGamePort);
     matchComponent(AppleIIKeyboard);
@@ -153,6 +163,8 @@ OEComponent *OEComponentFactory::construct(const string& className)
     matchComponent(RDCFFA);
     
     matchComponent(VidexVideoterm);
+
+    matchComponent(AERamFactor);
     
     matchComponent(W65C02S);
     // FACTORY_CODE_END - Do not modify this section

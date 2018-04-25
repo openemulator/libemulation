@@ -276,7 +276,7 @@ bool PAAudio::openEmulations()
                 if (!error)
                     return true;
                 else
-                    logMessage("could not create eulations thread, error " + getString(error));
+                    logMessage("could not create emulations thread, error " + getString(error));
             }
             else
                 logMessage("could not attr emulations thread, error " + getString(error));

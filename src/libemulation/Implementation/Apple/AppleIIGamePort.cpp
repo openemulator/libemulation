@@ -69,10 +69,16 @@ bool AppleIIGamePort::setRef(string name, OEComponent *ref)
 	if (name == "controlBus")
     {
         if (controlBus)
+        {
             controlBus->removeObserver(this, CONTROLBUS_POWERSTATE_DID_CHANGE);
+            controlBus->removeObserver(this, CONTROLBUS_RESET_DID_CLEAR);
+        }
 		controlBus = ref;
         if (controlBus)
+        {
             controlBus->addObserver(this, CONTROLBUS_POWERSTATE_DID_CHANGE);
+            controlBus->addObserver(this, CONTROLBUS_RESET_DID_CLEAR);
+        }
     }
 	else if (name == "floatingBus")
 		floatingBus = ref;
@@ -159,9 +165,14 @@ void AppleIIGamePort::notify(OEComponent *sender, int notification, void *data)
     }
     else if (sender == controlBus)
     {
-        ControlBusPowerState powerState = *((ControlBusPowerState *)data);
+        bool reset = notification == CONTROLBUS_RESET_DID_CLEAR;
         
-        if (powerState == CONTROLBUS_POWERSTATE_OFF)
+        if (notification == CONTROLBUS_POWERSTATE_DID_CHANGE) {
+            ControlBusPowerState powerState = *((ControlBusPowerState *)data);
+            reset = reset || (powerState == CONTROLBUS_POWERSTATE_OFF);
+        }
+        
+        if (reset)
         {
             setAN(0, false);
             setAN(1, false);
