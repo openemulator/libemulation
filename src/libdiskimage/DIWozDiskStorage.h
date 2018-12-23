@@ -28,6 +28,12 @@ public:
     bool writeTrack(DIInt headIndex, DIInt trackIndex, DITrack& track);
 
 private:
+    
+    DIChar wozVersion;
+    bool writeProtected;
+    DIChar optimalBitTiming;
+    DIInt largestTrack;
+    
     DIBackingStore *backingStore;
     
     DIData trackMap;

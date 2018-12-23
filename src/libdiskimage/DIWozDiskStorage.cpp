@@ -12,17 +12,23 @@
 #define WOZ_HEADER_START        0
 #define WOZ_HEADER_SIZE         8
 
-#define WOZ_SIGNATURE           0x315A4F57
+#define WOZ_SIGNATURE           0x574f5a00
 #define WOZ_INTEGRITYCHECK      0x0a0d0aff
+
+#define WOZ_INFO_START          20
+#define WOZ_INFO_SIZE           60
 
 #define WOZ_TRACKMAP_START      88
 #define WOZ_TRACKMAP_SIZE       160
 
-#define WOZ_TRACKS_START        256
-#define WOZ_TRACKS_SIZE         6656
+#define WOZ1_TRACKS_START       256
+#define WOZ1_TRACKS_SIZE        6656
 
-#define WOZ_TRACK_INFO_BYTES    6646
-#define WOZ_TRACK_INFO_BITS     6648
+#define WOZ1_TRACK_INFO_BYTES   6646
+#define WOZ1_TRACK_INFO_BITS    6648
+
+#define WOZ2_TRK_START          256
+#define WOZ2_TRK_SIZE           8
 
 #define WOZ_UNFORMATTED_SIZE    6250
 
@@ -45,11 +51,29 @@ bool DIWozDiskStorage::open(DIBackingStore *backingStore)
         return false;
     
     // validate the signature
-    if(getDIIntLE(&header[0]) != WOZ_SIGNATURE)
+    DIInt signature = getDIIntBE(&header[0]);
+    if((signature & 0xffffff00) != WOZ_SIGNATURE)
         return false;
+    wozVersion = signature & 0x000000ff;
     // validate the integrity check
     if(getDIIntLE(&header[4]) != WOZ_INTEGRITYCHECK)
         return false;
+    
+    // grab stuff from the INFO chunk
+    DIChar info[WOZ_INFO_SIZE];
+    if(!backingStore->read(WOZ_INFO_START, info, WOZ_INFO_SIZE))
+        return false;
+    DIChar infoVersion = info[0];
+    if(info[1] != 1)    // be sure that we are a 5.25 disk
+        return false;
+    writeProtected = info[2] == 1;
+    if(infoVersion >= 2) {
+        optimalBitTiming = info[39];
+        largestTrack = getDIShortLE(&info[44]) * 512;
+    } else {
+        optimalBitTiming = 32;
+        largestTrack = WOZ1_TRACKS_SIZE;
+    }
     
     // load up the TMAP chunk
     trackMap.resize(WOZ_TRACKMAP_SIZE);
@@ -100,14 +124,29 @@ bool DIWozDiskStorage::readTrack(DIInt headIndex, DIInt trackIndex, DITrack& tra
         memset(&track.data.front(), 0, WOZ_UNFORMATTED_SIZE);
         return true;
     }
-    // calc the track start
-    DIInt trackStart = WOZ_TRACKS_START + (realTrack * WOZ_TRACKS_SIZE);
-    // grab the track info
-    DIChar trackData[WOZ_TRACKS_SIZE];
-    if (!backingStore->read(trackStart, trackData, WOZ_TRACKS_SIZE))
-        return false;
-    DIInt trackSize = getDIShortLE(&trackData[WOZ_TRACK_INFO_BYTES]);
-    DIInt trackBitCount = getDIShortLE(&trackData[WOZ_TRACK_INFO_BITS]);
+    
+    DIChar trackData[largestTrack];
+    DIInt trackStart;
+    DIInt trackBitCount;
+    
+    if(wozVersion >= 2) {
+        // WOZ 2.0
+        DIChar trk[WOZ2_TRK_SIZE];
+        DIInt trkStart = WOZ2_TRK_START + (realTrack * WOZ2_TRK_SIZE);
+        if (!backingStore->read(trkStart, trk, WOZ2_TRK_SIZE))
+            return false;
+        trackStart = ((DIInt)getDIShortLE(&trk[0])) << 9;
+        DIInt trackSize = ((DIInt)getDIShortLE(&trk[2])) << 9;
+        trackBitCount = getDIIntLE(&trk[4]);
+        if (!backingStore->read(trackStart, trackData, trackSize))
+            return false;
+    } else {
+        // WOZ 1.0
+        trackStart = WOZ1_TRACKS_START + (realTrack * WOZ1_TRACKS_SIZE);
+        if (!backingStore->read(trackStart, trackData, WOZ1_TRACKS_SIZE))
+            return false;
+        trackBitCount = getDIShortLE(&trackData[WOZ1_TRACK_INFO_BITS]);
+    }
     
     // setup the output track
     track.data.resize(trackBitCount);
