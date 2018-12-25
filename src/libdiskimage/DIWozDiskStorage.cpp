@@ -54,7 +54,7 @@ bool DIWozDiskStorage::open(DIBackingStore *backingStore)
     DIInt signature = getDIIntBE(&header[0]);
     if((signature & 0xffffff00) != WOZ_SIGNATURE)
         return false;
-    wozVersion = signature & 0x000000ff;
+    wozVersion = (signature & 0x000000ff) - 0x30;   // converting from ASCII to binary
     // validate the integrity check
     if(getDIIntLE(&header[4]) != WOZ_INTEGRITYCHECK)
         return false;
