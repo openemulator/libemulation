@@ -34,6 +34,11 @@ string DIDiskStorage::getFormatLabel()
     return "";
 }
 
+DILong DIDiskStorage::getOptimalBitTiming()
+{
+    return 32;
+}
+
 bool DIDiskStorage::readTrack(DIInt headIndex, DIInt trackIndex, DITrack& track)
 {
     return false;

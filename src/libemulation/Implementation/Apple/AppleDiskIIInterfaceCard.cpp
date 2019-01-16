@@ -52,6 +52,7 @@ AppleDiskIIInterfaceCard::AppleDiskIIInterfaceCard()
     
     driveEnableControl = false;
     lastCycles = 0;
+    driveBitClock = 0;
 }
 
 bool AppleDiskIIInterfaceCard::setValue(string name, string value)
@@ -155,6 +156,7 @@ void AppleDiskIIInterfaceCard::notify(OEComponent *sender, int notification, voi
             selectDrive(0);
             setSequencerLoad(false);
             setSequencerWrite(false);
+            driveBitClock = 0;
             
             break;
             
@@ -274,7 +276,10 @@ void AppleDiskIIInterfaceCard::setDriveOn(bool value)
     }
     
     if (driveOn)
+    {
         controlBus->postMessage(this, CONTROLBUS_GET_CYCLES, &lastCycles);
+        driveBitClock = 0;
+    }
     else
     {
         ControlBusTimer timer = { 1.0 * APPLEII_CLOCKFREQUENCY, 0};
@@ -351,7 +356,11 @@ void AppleDiskIIInterfaceCard::updateSequencer()
     
     controlBus->postMessage(this, CONTROLBUS_GET_CYCLES, &cycles);
     
-    OELong bitNum = (cycles - (lastCycles & ~0x3)) >> 2;
+    driveBitClock += (cycles - lastCycles) << 3;
+    OELong bitTiming;
+    currentDrive->postMessage(this, STORAGE_GET_OPTIMALBITTIMING, &bitTiming);
+    OELong bitNum = driveBitClock / bitTiming;
+    driveBitClock -= (bitNum * bitTiming);
     
 	switch (sequencerMode)
     {

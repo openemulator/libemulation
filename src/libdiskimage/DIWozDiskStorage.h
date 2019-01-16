@@ -23,6 +23,7 @@ public:
     DIDiskType getDiskType();
     DIInt getTracksPerInch();
     string getFormatLabel();
+    DILong getOptimalBitTiming();
     
     bool readTrack(DIInt headIndex, DIInt trackIndex, DITrack& track);
     bool writeTrack(DIInt headIndex, DIInt trackIndex, DITrack& track);

@@ -49,6 +49,7 @@ public:
     virtual DIDiskType getDiskType();
     virtual DIInt getTracksPerInch();
     virtual string getFormatLabel();
+    virtual DILong getOptimalBitTiming();
     
     virtual bool readTrack(DIInt headIndex, DIInt trackIndex, DITrack& track);
     virtual bool writeTrack(DIInt headIndex, DIInt trackIndex, DITrack& track);

@@ -61,6 +61,8 @@ private:
     
     OELong lastCycles;
     
+    OELong driveBitClock;
+    
     void updateSwitches(OEAddress address);
     void updatePhaseControl();
     void updateDriveEnableControl();
