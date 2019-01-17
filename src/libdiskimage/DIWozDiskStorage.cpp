@@ -110,6 +110,10 @@ string DIWozDiskStorage::getFormatLabel()
     return "WOZ Disk Image (read-only)";
 }
 
+DILong DIWozDiskStorage::getOptimalBitTiming() {
+    return optimalBitTiming;
+}
+
 bool DIWozDiskStorage::readTrack(DIInt headIndex, DIInt trackIndex, DITrack& track)
 {
     if (trackIndex >= WOZ_TRACKMAP_SIZE)

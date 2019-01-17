@@ -41,6 +41,7 @@ public:
     string getPath();
     bool isWriteEnabled();
     string getFormatLabel();
+    DILong getOptimalBitTiming();
     
     void setForceWriteProtected(bool value);
     bool getForceWriteProtected();

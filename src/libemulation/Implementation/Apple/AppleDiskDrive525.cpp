@@ -196,6 +196,11 @@ bool AppleDiskDrive525::postMessage(OEComponent *sender, int message, void *data
             
             return true;
             
+        case STORAGE_GET_OPTIMALBITTIMING:
+            *((OELong *)data) = diskStorage.getOptimalBitTiming();
+            
+            return true;
+            
         case APPLEII_CLEAR_DRIVEENABLE:
             if (drivePlayer)
                 drivePlayer->postMessage(this, AUDIOPLAYER_PAUSE, NULL);

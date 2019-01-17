@@ -383,6 +383,7 @@ bool DIApple525DiskStorage::close()
     ddlDiskStorage.close();
     fdiDiskStorage.close();
     v2dDiskStorage.close();
+    wozDiskStorage.close();
     
     twoIMGBackingStore.close();
     dc42BackingStore.close();
@@ -412,6 +413,11 @@ bool DIApple525DiskStorage::isWriteEnabled()
 string DIApple525DiskStorage::getFormatLabel()
 {
     return diskStorage->getFormatLabel();
+}
+
+DILong DIApple525DiskStorage::getOptimalBitTiming()
+{
+    return diskStorage->getOptimalBitTiming();
 }
 
 void DIApple525DiskStorage::setForceWriteProtected(bool value)
