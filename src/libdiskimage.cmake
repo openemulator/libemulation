@@ -1,25 +1,28 @@
-# libdiskimage/definitions.cmake - Definitions of source files and include directories.
-add_library(diskimage
-  ${LIBDISKIMAGE_DIR}/DI2IMGBackingStore.cpp
-  ${LIBDISKIMAGE_DIR}/DIApple35DiskStorage.cpp
-  ${LIBDISKIMAGE_DIR}/DIApple525DiskStorage.cpp
-  ${LIBDISKIMAGE_DIR}/DIATABlockStorage.cpp
-  ${LIBDISKIMAGE_DIR}/DIBackingStore.cpp
-  ${LIBDISKIMAGE_DIR}/DIBlockStorage.cpp
-  ${LIBDISKIMAGE_DIR}/DICommon.cpp
-  ${LIBDISKIMAGE_DIR}/DIDC42BackingStore.cpp
-  ${LIBDISKIMAGE_DIR}/DIDDLDiskStorage.cpp
-  ${LIBDISKIMAGE_DIR}/DIDiskStorage.cpp
-  ${LIBDISKIMAGE_DIR}/DIFDIDiskStorage.cpp
-  ${LIBDISKIMAGE_DIR}/DIFileBackingStore.cpp
-  ${LIBDISKIMAGE_DIR}/DILogicalDiskStorage.cpp
-  ${LIBDISKIMAGE_DIR}/DIRAMBackingStore.cpp
-  ${LIBDISKIMAGE_DIR}/DIRAWBlockStorage.cpp
-  ${LIBDISKIMAGE_DIR}/DIV2DDiskStorage.cpp
-  ${LIBDISKIMAGE_DIR}/DIVDIBlockStorage.cpp
-  ${LIBDISKIMAGE_DIR}/DIVMDKBlockStorage.cpp
-)
-set(LIBDISKIMAGE_INCLUDE_DIRS
-  ${LIBDISKIMAGE_DIR})
+# libdiskimage - disk image emulation
+set(_libdiskimage_dir ${source_directory}/libdiskimage)
 
-set(LIBDISKIMAGE diskimage)
+# Sources
+set(libdiskimage
+  ${_libdiskimage_dir}/DI2IMGBackingStore.cpp
+  # TODO ${_libdiskimage_dir}/DIApple35DiskStorage.cpp
+  ${_libdiskimage_dir}/DIApple525DiskStorage.cpp
+  ${_libdiskimage_dir}/DIATABlockStorage.cpp
+  ${_libdiskimage_dir}/DIBackingStore.cpp
+  ${_libdiskimage_dir}/DIBlockStorage.cpp
+  ${_libdiskimage_dir}/DICommon.cpp
+  ${_libdiskimage_dir}/DIDC42BackingStore.cpp
+  ${_libdiskimage_dir}/DIDDLDiskStorage.cpp
+  ${_libdiskimage_dir}/DIDiskStorage.cpp
+  ${_libdiskimage_dir}/DIFDIDiskStorage.cpp
+  ${_libdiskimage_dir}/DIFileBackingStore.cpp
+  ${_libdiskimage_dir}/DILogicalDiskStorage.cpp
+  ${_libdiskimage_dir}/DIRAMBackingStore.cpp
+  ${_libdiskimage_dir}/DIRAWBlockStorage.cpp
+  ${_libdiskimage_dir}/DIV2DDiskStorage.cpp
+  ${_libdiskimage_dir}/DIVDIBlockStorage.cpp
+  ${_libdiskimage_dir}/DIVMDKBlockStorage.cpp
+  ${_libdiskimage_dir}/DIWozDiskStorage.cpp
+)
+
+# Headers
+set(libdiskimage_include ${_libdiskimage_dir})

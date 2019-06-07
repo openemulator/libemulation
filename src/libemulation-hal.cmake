@@ -1,12 +1,14 @@
-add_library(emulation-hal
-  ${LIBEMULATION_HAL_DIR}/HIDJoystick.cpp
-  ${LIBEMULATION_HAL_DIR}/OEMatrix3.cpp
-  ${LIBEMULATION_HAL_DIR}/OEVector.cpp
-  ${LIBEMULATION_HAL_DIR}/OpenGLCanvas.cpp
-  ${LIBEMULATION_HAL_DIR}/PAAudio.cpp)
+# libemulation-hal - hardware abstraction layer
 
-set(LIBEMULATION_HAL_INCLUDE_DIRS
-  ${LIBEMULATION_HAL_DIR}
+set(_libemulation_hal_dir ${source_directory}/libemulation-hal)
+
+# Sources
+set(emulation_hal
+  ${_libemulation_hal_dir}/HIDJoystick.cpp
+  ${_libemulation_hal_dir}/OEMatrix3.cpp
+  ${_libemulation_hal_dir}/OEVector.cpp
+  ${_libemulation_hal_dir}/OpenGLCanvas.cpp
+  ${_libemulation_hal_dir}/PAAudio.cpp
 )
 
-set(LIBEMULATION_HAL emulation-hal)
+set(emulation_hal_include ${_libemulation_hal_dir})
