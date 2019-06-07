@@ -1,0 +1,22 @@
+dist: trusty
+sudo: required
+language: cpp
+
+matrix:
+  include:
+    - os: osx
+      compiler: clang
+      env: Build, Test & Deploy
+      osx_image: xcode10
+      addons:
+        homebrew:
+          packages:
+          - libzip
+          - portaudio
+          - libsndfile
+          - libsamplerate
+          update: true
+      script:
+        - |
+          cmake -H. -B_builds -DCMAKE_BUILD_TYPE=Release
+          cmake --build _builds --config Release

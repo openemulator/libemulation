@@ -1,98 +1,122 @@
-# libemulation/definitions.cmake - Definitions of source files and include directories.
-add_library(emulation
-  ${LIBEMULATION_DIR}/Interface/Generic/MemoryInterface.cpp
-  ${LIBEMULATION_DIR}/Interface/Host/AudioInterface.cpp
-  ${LIBEMULATION_DIR}/Core/OECommon.cpp
-  ${LIBEMULATION_DIR}/Core/OEComponent.cpp
-  ${LIBEMULATION_DIR}/Core/OEComponentFactory.cpp
-  ${LIBEMULATION_DIR}/Core/OEDevice.cpp
-  ${LIBEMULATION_DIR}/Core/OEDocument.cpp
-  ${LIBEMULATION_DIR}/Core/OEEmulation.cpp
-  ${LIBEMULATION_DIR}/Core/OEImage.cpp
-  ${LIBEMULATION_DIR}/Core/OEPackage.cpp
-  ${LIBEMULATION_DIR}/Core/OESound.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/Apple1ACI.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/Apple1IO.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/Apple1Terminal.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleDiskDrive525.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleDiskIIInterfaceCard.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleGraphicsTablet.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleGraphicsTabletInterfaceCard.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIAddressDecoder.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIAudioIn.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIAudioOut.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIDisableC800.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIFloatingBus.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIGamePort.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIIAddressDecoder.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIIBeeper.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIIDiskIO.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIIGamePort.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIIKeyboard.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIIMOS6502.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIIRTC.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIISystemControl.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIIVideo.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIKeyboard.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIISlotController.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIISystemControl.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleIIVideo.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleLanguageCard.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleSilentype.cpp
-  ${LIBEMULATION_DIR}/Implementation/Apple/AppleSilentypeInterfaceCard.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/AddressDecoder.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/AddressMapper.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/AddressMasker.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/AddressMux.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/AddressOffset.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/ATAController.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/ATADevice.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/Audio1Bit.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/AudioCodec.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/AudioPlayer.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/ControlBus.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/FloatingBus.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/JoystickMapper.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/Monitor.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/Proxy.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/RAM.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/ROM.cpp
-  ${LIBEMULATION_DIR}/Implementation/Generic/VRAM.cpp
-  ${LIBEMULATION_DIR}/Implementation/MOS/MOS6502.cpp
-#  ${LIBEMULATION_DIR}/Implementation/MOS/MOS6509.cpp
-  ${LIBEMULATION_DIR}/Implementation/MOS/MOS6522.cpp
-  ${LIBEMULATION_DIR}/Implementation/MOS/MOS6530.cpp
-  ${LIBEMULATION_DIR}/Implementation/MOS/MOS6551.cpp
-  ${LIBEMULATION_DIR}/Implementation/MOS/MOSKIM1IO.cpp
-  ${LIBEMULATION_DIR}/Implementation/MOS/MOSKIM1PLL.cpp
-  ${LIBEMULATION_DIR}/Implementation/Motorola/MC6821.cpp
-  ${LIBEMULATION_DIR}/Implementation/Motorola/MC6845.cpp
-  ${LIBEMULATION_DIR}/Implementation/National/MM58167.cpp
-  ${LIBEMULATION_DIR}/Implementation/RD/RDCFFA.cpp
-#  ${LIBEMULATION_DIR}/Implementation/Ricoh/RP2A03.cpp
-  ${LIBEMULATION_DIR}/Implementation/Videx/VidexVideoterm.cpp
-  ${LIBEMULATION_DIR}/Implementation/WDC/W65C02S.cpp
-  ${LIBEMULATION_DIR}/Implementation/WDC/W65C816S.cpp
-#  ${LIBEMULATION_DIR}/Implementation/Zilog/Z80.cpp
+# libemulation - emulation libraries
+
+set(_libemulation_dir ${source_directory}/libemulation)
+
+# Sources
+set(emulation
+  # Core libraries
+  ${_libemulation_dir}/Core/OECommon.cpp
+  ${_libemulation_dir}/Core/OEComponent.cpp
+  ${_libemulation_dir}/Core/OEComponentFactory.cpp
+  ${_libemulation_dir}/Core/OEDevice.cpp
+  ${_libemulation_dir}/Core/OEDocument.cpp
+  ${_libemulation_dir}/Core/OEEmulation.cpp
+  ${_libemulation_dir}/Core/OEImage.h
+  ${_libemulation_dir}/Core/OEPackage.cpp
+  ${_libemulation_dir}/Core/OESound.cpp
+  # Generic libaries
+  ${_libemulation_dir}/Implementation/Generic/AddressDecoder.cpp
+  ${_libemulation_dir}/Implementation/Generic/AddressMapper.cpp
+  ${_libemulation_dir}/Implementation/Generic/AddressMasker.cpp
+  ${_libemulation_dir}/Implementation/Generic/AddressMux.cpp
+  ${_libemulation_dir}/Implementation/Generic/AddressOffset.cpp
+  ${_libemulation_dir}/Implementation/Generic/ATAController.cpp
+  ${_libemulation_dir}/Implementation/Generic/ATADevice.cpp
+  ${_libemulation_dir}/Implementation/Generic/Audio1Bit.cpp
+  ${_libemulation_dir}/Implementation/Generic/AudioCodec.cpp
+  ${_libemulation_dir}/Implementation/Generic/AudioPlayer.cpp
+  ${_libemulation_dir}/Implementation/Generic/ControlBus.cpp
+  ${_libemulation_dir}/Implementation/Generic/FloatingBus.cpp
+  ${_libemulation_dir}/Implementation/Generic/JoystickMapper.cpp
+  ${_libemulation_dir}/Implementation/Generic/Monitor.cpp
+  ${_libemulation_dir}/Implementation/Generic/Proxy.cpp
+  ${_libemulation_dir}/Implementation/Generic/RAM.cpp
+  ${_libemulation_dir}/Implementation/Generic/ROM.cpp
+  ${_libemulation_dir}/Implementation/Generic/VRAM.cpp
+  # Applied Engineering
+  ${_libemulation_dir}/Implementation/AE/AERamFactor.cpp
+  # Apple
+  ${_libemulation_dir}/Implementation/Apple/Apple1ACI.cpp
+  ${_libemulation_dir}/Implementation/Apple/Apple1IO.cpp
+  ${_libemulation_dir}/Implementation/Apple/Apple1Terminal.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleDiskDrive525.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleDiskIIInterfaceCard.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleGraphicsTablet.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleGraphicsTabletInterfaceCard.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIAddressDecoder.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIAudioIn.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIAudioOut.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIDisableC800.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIEAddressDecoder.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIEKeyboard.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIEMMU.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIEVideo.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIFloatingBus.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIGamePort.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIIAddressDecoder.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIIBeeper.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIIDiskIO.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIIGamePort.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIIKeyboard.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIIMOS6502.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIIRTC.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIISystemControl.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIIVideo.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIKeyboard.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIISlotController.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIISystemControl.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleIIVideo.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleLanguageCard.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleSilentype.cpp
+  ${_libemulation_dir}/Implementation/Apple/AppleSilentypeInterfacecard.cpp
+  # Don't Ask
+  ${_libemulation_dir}/Implementation/Don\'t\ Ask/SAMDACCard.cpp
+  # MOS
+  ${_libemulation_dir}/Implementation/MOS/MOS6502.cpp
+  # TODO ${_libemulation_dir}/Implementation/MOS/MOS6509.cpp
+  ${_libemulation_dir}/Implementation/MOS/MOS6522.cpp
+  ${_libemulation_dir}/Implementation/MOS/MOS6530.cpp
+  ${_libemulation_dir}/Implementation/MOS/MOS6551.cpp
+  ${_libemulation_dir}/Implementation/MOS/MOSKIM1IO.cpp
+  ${_libemulation_dir}/Implementation/MOS/MOSKIM1PLL.cpp
+  # Motorola
+  ${_libemulation_dir}/Implementation/Motorola/MC6821.cpp
+  ${_libemulation_dir}/Implementation/Motorola/MC6845.cpp
+  # National Semiconductor
+  ${_libemulation_dir}/Implementation/National/MM58167.cpp
+  # R&D Automation
+  ${_libemulation_dir}/Implementation/RD/RDCFFA.cpp
+  # Ricoh
+  # TODO ${_libemulation_dir}/Implementation/Ricoh/RP2A03.cpp
+  # Videx
+  ${_libemulation_dir}/Implementation/Videx/VidexVideoterm.cpp
+  # Western Design Center
+  ${_libemulation_dir}/Implementation/WDC/W65C02S.cpp
+  # TODO ${_libemulation_dir}/Implementation/WDC/W65C816S.cpp
+  # Zilog
+  # TODO ${_libemulation_dir}/Implementation/Zilog/Z80.cpp
+  # Interface
+  ${_libemulation_dir}/Interface/Host/AudioInterface.cpp
 )
 
-set(LIBEMULATION_INCLUDE_DIRS
-  ${LIBEMULATION_DIR}
-  ${LIBEMULATION_DIR}/Core
-  ${LIBEMULATION_DIR}/Interface/Apple
-  ${LIBEMULATION_DIR}/Interface/EIA
-  ${LIBEMULATION_DIR}/Interface/Generic
-  ${LIBEMULATION_DIR}/Interface/Host
-  ${LIBEMULATION_DIR}/Interface/IEEE
-  ${LIBEMULATION_DIR}/Implementation/Apple
-  ${LIBEMULATION_DIR}/Implementation/Generic
-  ${LIBEMULATION_DIR}/Implementation/MOS
-  ${LIBEMULATION_DIR}/Implementation/Motorola
-  ${LIBEMULATION_DIR}/Implementation/National
-  ${LIBEMULATION_DIR}/Implementation/RD
-  ${LIBEMULATION_DIR}/Implementation/Ricoh
-  ${LIBEMULATION_DIR}/Implementation/Videx
-  ${LIBEMULATION_DIR}/Implementation/WDC
-  ${LIBEMULATION_DIR}/Implementation/Zilog)
+# Headers
 
-set(LIBEMULATION emulation)
+set(emulation_include
+  ${_libemulation_dir}/Implementation/Generic
+  ${_libemulation_dir}/Core
+  ${_libemulation_dir}/Implementation/AE
+  ${_libemulation_dir}/Implementation/Apple
+  ${_libemulation_dir}/Implementation/Don\'t\ Ask
+  ${_libemulation_dir}/Implementation/MOS
+  ${_libemulation_dir}/Implementation/Motorola
+  ${_libemulation_dir}/Implementation/National
+  ${_libemulation_dir}/Implementation/RD
+  ${_libemulation_dir}/Implementation/Videx
+  ${_libemulation_dir}/Implementation/WDC
+  ${_libemulation_dir}/Implementation/Zilog
+  ${_libemulation_dir}/Interface/Apple
+  ${_libemulation_dir}/Interface/EIA
+  ${_libemulation_dir}/Interface/Generic
+  ${_libemulation_dir}/Interface/Host
+  ${_libemulation_dir}/Interface/IEEE
+)
