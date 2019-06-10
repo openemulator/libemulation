@@ -11,7 +11,7 @@ set(emulation
   ${_libemulation_dir}/Core/OEDevice.cpp
   ${_libemulation_dir}/Core/OEDocument.cpp
   ${_libemulation_dir}/Core/OEEmulation.cpp
-  ${_libemulation_dir}/Core/OEImage.h
+  ${_libemulation_dir}/Core/OEImage.cpp
   ${_libemulation_dir}/Core/OEPackage.cpp
   ${_libemulation_dir}/Core/OESound.cpp
   # Generic libaries
@@ -96,6 +96,7 @@ set(emulation
   # Zilog
   # TODO ${_libemulation_dir}/Implementation/Zilog/Z80.cpp
   # Interface
+  ${_libemulation_dir}/Interface/Generic/MemoryInterface.cpp
   ${_libemulation_dir}/Interface/Host/AudioInterface.cpp
 )
 

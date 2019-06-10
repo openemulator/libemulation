@@ -18,5 +18,5 @@ matrix:
           update: true
       script:
         - |
-          cmake -H. -B_builds -DCMAKE_BUILD_TYPE=Release
-          cmake --build _builds --config Release
+          cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release
