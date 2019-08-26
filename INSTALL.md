@@ -1,16 +1,14 @@
 # libemulation building instructions
 
-These are the building instructions for libemulation, a cross-platform emulator of many legacy computer systems.
+These are the building instructions for libemulation, a cross-platform emulation framework of many legacy computer systems.
 
-## Mac OS X
-We aim to be portable, but currently the only offically supported and tested platform is macOS.
+## macOS
+We aim to be portable, but currently the only officially supported and tested platform is macOS.
 
-To compile OpenEmulator for Mac OS X you need Xcode and several external libraries not available by default. The simplest way to install them is Homebrew.
+To compile libemulation for macOS you need Xcode and several external libraries not available by default. The simplest way to install them is using Homebrew.
 
 ### Setup
-Install Homebrew from the official site:
-
-	http://brew.sh/
+Install Homebrew from the official site: <http://brew.sh/>
 
 The official tool for building libemulation is CMake.
 
@@ -19,10 +17,9 @@ The official tool for building libemulation is CMake.
 
 The required version of CMake is at least 3.11.
 
-### Install dependencies
+### Dependencies
 Use Homebrew to install the required dependencies:
 
-	brew update
 	brew install libpng libxml2 libzip portaudio libsndfile libsamplerate
 
 ### Build
