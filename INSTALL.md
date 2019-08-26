@@ -25,7 +25,7 @@ Use Homebrew to install the required dependencies:
 ### Build
 With the dependencies installed, we're now ready to build libemulation. Run from the cloned repository:
 
-	cmake -H. -B_builds
-	cmake --build _builds
+	cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
+	cmake --build build --config Release
 
 This will create a static library file `libemulation.a` in the build directory.
