@@ -83,5 +83,5 @@ Temporary Items
 
 # End of https://www.gitignore.io/api/c++,cmake,macos
 
-# Projet-specific
+# Project-specific
 build/
