@@ -20,7 +20,7 @@ The required version of CMake is at least 3.11.
 ### Dependencies
 Use Homebrew to install the required dependencies:
 
-	brew install libpng libxml2 libzip portaudio libsndfile libsamplerate
+	brew install libpng libzip portaudio libsndfile libsamplerate
 
 ### Build
 With the dependencies installed, we're now ready to build libemulation. Run from the cloned repository:
