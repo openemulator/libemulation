@@ -571,8 +571,13 @@ void AppleIIEVideo::notify(OEComponent *sender, int notification, void *data)
         {
             case APPLEII_AN2_DID_CHANGE:
                 an2 = *((bool *)data);
+
+                break;
+
             case APPLEII_AN3_DID_CHANGE:
                 an3 = *((bool *)data);
+
+                break;
         }
         refreshVideo();
         configureDraw();
