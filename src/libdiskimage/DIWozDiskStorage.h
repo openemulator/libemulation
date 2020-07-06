@@ -34,8 +34,11 @@ private:
     bool writeProtected;
     DIChar optimalBitTiming;
     DIInt largestTrack;
-    
+    bool updateCRC32;
+
     DIBackingStore *backingStore;
     
     DIData trackMap;
+
+    DIInt crc32(DIInt crc, const DIChar *buf, DILong size);
 };
