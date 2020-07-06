@@ -502,6 +502,15 @@ bool DIApple525DiskStorage::writeTrack(DIInt trackIndex, DIData& data)
         trackData.resize(trackIndex + 1);
     
     trackData[trackIndex] = data;
+
+    if(diskStorage == &wozDiskStorage)
+    {
+        DITrack track;
+        track.data = data;
+ 
+        return diskStorage->writeTrack(0, trackIndex, track);
+    }
+
     trackDataModified = true;
     
     return true;
