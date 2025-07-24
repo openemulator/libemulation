@@ -318,11 +318,16 @@ void Apple1Terminal::loadFont(OEData *data)
     
     for (OEInt c = 0; c < FONT_SIZE; c++)
     {
+        // Apple-1 character mapping:
+        // invert bit 6 (0x40), remove bit 5 (0x20), concat with bits 4:0
+        // result is 6-bit index = {~bit6, bit4, bit3, bit2, bit1, bit0}
+        OEInt apple1c = ((~c & 0x40) >> 1) | (c & 0x1F);
+
         for (OEInt y = 0; y < FONT_HEIGHT; y++)
         {
             for (OEInt x = 0; x < FONT_WIDTH; x++)
             {
-                bool b = (data->at((c & cMask) * FONT_HEIGHT + y) << (x >> 1)) & 0x40;
+                bool b = (data->at((apple1c & cMask) * FONT_HEIGHT + y) << (x >> 1)) & 0x40;
                 
                 font[(c * FONT_HEIGHT + y) * FONT_WIDTH + x] = b ? 0xff : 0x00;
             }
