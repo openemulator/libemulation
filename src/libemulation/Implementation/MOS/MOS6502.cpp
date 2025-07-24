@@ -269,26 +269,35 @@ void MOS6502::execute()
             static unsigned long long limit = 0x4000;
             static unsigned long long count = 0;
             
-            if ((pc.q & 0xffff) == 0xC10A)
-                 cap = true;
+            if ((pc.q & 0xffff) == 0xC10A) // if program counter hits 0xC10A (near start of ACI ROM)
+                 cap = true;               // start capture
             
             if (cap)
             {
                 static FILE *fp = NULL;
-                
-                if (!fp)
-                    fp = fopen("/tmp/oe-cap.txt", "wt");
-                if (fp)
+
+                if (count < limit) // if within capture limit
                 {
-                    fprintf(fp, "pc=%04x a=%02x x=%02x y=%02x s=%02x p=%02x [%02x %02x %02x]\n",
-                            pc.w.l, a, x, y, sp.b.l, p,
-                            memoryBus->read(pc.q),
-                            memoryBus->read(pc.q + 1),
-                            memoryBus->read(pc.q + 2));
+                    if (!fp)
+                        fp = fopen("/tmp/oe-cap.txt", "wt");
+                    if (fp)
+                    {
+                        fprintf(fp, "pc=%04x a=%02x x=%02x y=%02x s=%02x p=%02x [%02x %02x %02x]\n",
+                                pc.w.l, a, x, y, sp.b.l, p,
+                                memoryBus->read(pc.q),
+                                memoryBus->read(pc.q + 1),
+                                memoryBus->read(pc.q + 2));
+                    }
+                    count++;
                 }
-                count++;
-                if (count==limit) {
-                  cap = false;
+                else // capture limit reached
+                {
+                    if (fp)
+                    {
+                        fclose(fp);
+                        fp = NULL;
+                        cap = false;
+                    }
                 }
             }
             
